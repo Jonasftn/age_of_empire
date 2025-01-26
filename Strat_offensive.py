@@ -1,4 +1,3 @@
-from Villager import Villager
 from Buildings import Buildings
 from Units import Units
 from Recolte_ressources import Recolte_ressources
