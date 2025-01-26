@@ -3,17 +3,19 @@ import math
 import pygame
 
 from TileMap import *
-from constants import *
+import constants
 from Coordinates import *
+
+
 import random
 import time
 from Global_image_load import *
 from numpy.random import poisson
+import constants
 
 class Entity:
-    def __init__(self, gameObj, entityType, position):
+    def __init__(self, entityType, position):
 
-        self.gameObj = gameObj
         """
         self.tile_grass = tile_grass
         self.map_data = map_data  # Dictionnaire global à modifier
@@ -48,20 +50,29 @@ class Entity:
         self.positionFinal = (x, y) 
 
     def is_moving():
-        return self.positionFinal <> self.position 
+        return self.positionFinal != self.position 
 
 class Person(Entity):
-    def __init__(self):
+    def __init__(self, entityType, position):
         self.healthPoint = constants.units_dict[entityType]['hp']
         self.image = constants.units_dict[entityType]['image']
+        self.position = position
+        self.entityType = entityType
 
 class Ressource(Entity):
-    def __init__(self):
+    def __init__(self, entityType, position):
         self.quantity = constants.ressources_dict[entityType]['quantite']
         self.image = constants.ressources_dict[entityType]['image']
+        self.position = position
+        self.entityType = entityType
 
 class Building(Entity):
-    def __init__(self):
+    def __init__(self, entityType, position):
         self.healthPoint = constants.builds_dict[entityType]['hp']
         self.image = constants.builds_dict[entityType]['image']
+        self.position = position
+        self.entityType = entityType
         
+
+
+    
