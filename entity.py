@@ -11,9 +11,8 @@ from Global_image_load import *
 from numpy.random import poisson
 
 class Entity:
-    def __init__(self, gameObj, entityType, position):
+    def __init__(self, entityType, position):
 
-        self.gameObj = gameObj
         """
         self.tile_grass = tile_grass
         self.map_data = map_data  # Dictionnaire global à modifier

@@ -23,7 +23,7 @@ import webbrowser
 import os
 from colorama import Fore, Style
 from collections import deque
-
+from entity import *
 
 class Game:
     """Classe principale gérant le jeu."""
@@ -75,6 +75,14 @@ class Game:
         self.tiles = {}
         self.test = deque()
 
+        tabPersons = []
+        for vi in range (2):
+            vi = Entity.Person('V', (62, 102))
+            
+        
+        tabBuildings = []
+
+        tabRessources = []
         # RECOLTE_RESSOURCES
         self.recolte = Recolte_ressources(self)
 
