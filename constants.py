@@ -118,7 +118,8 @@ builds_dict = {
         'taille': 4,
         'cout': {'G': 0, 'W': 350, 'f': 0},
         'build_time': 5,  # Temps en secondes
-        'hp': 10
+        'hp': 10,
+        'children' : 'v'
     },
     'H': {
         'tile': Tile("images/House.webp", 90, 70),
@@ -147,21 +148,24 @@ builds_dict = {
         'taille': 3,
         'cout': {'G': 0, 'W': 175, 'f': 0},
         'build_time': 50,
-        'hp': 500
+        'hp': 500,
+        'children' : 's'
     },
     'S': {
         'tile': Tile("images/Stable.png", 128, 100),
         'taille': 3,
         'cout': {'G': 0, 'W': 175, 'f': 0},
         'build_time': 50,
-        'hp': 500
+        'hp': 500,
+        'children' : 'h'
     },
     'A': {
         'tile': Tile("images/Archery Range.png", 128, 100),
         'taille': 3,
         'cout': {'G': 0, 'W': 175, 'f': 0},
         'build_time': 50,
-        'hp': 500
+        'hp': 500,
+        'children' : 'a'
     },
     'K': {
         'tile': Tile("images/Keep.png", 64, 64),

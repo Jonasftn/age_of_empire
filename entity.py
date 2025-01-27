@@ -124,13 +124,15 @@ class Person():
 
 
 
-    def create(self, entityType):
-        for buildingType in self.gameObj.buildingsDict.values():
-            if buildingType.entityType == entityType:
-                self.gameObj.persons.append(Person(self.gameObj, entityType.lower(), buildingType.position, self.playerName))
-                for differentRessource, cost in self.cost:
-                    
-                    compteurs_joueurs[self.playerName]['ressources'][differentRessource] += cost
+    def create(self, buildingType):
+        for building in self.gameObj.buildingsDict.values():
+            if building.entityType == buildingType:
+
+
+                if 'children' in constants.builds_dict[buildingType].keys():
+                    self.gameObj.persons.append(Person(self.gameObj, constants.builds_dict[buildingType]['children'], building.position, self.playerName))
+                    for differentRessource, cost in self.cost:
+                        compteurs_joueurs[self.playerName]['ressources'][differentRessource] -= cost
                 
     def collect(self, ressourceName):
         # We go to the closest ressource
@@ -199,15 +201,22 @@ class Ressource():
         self.entityType = entityType
 
 class Building():
-    def __init__(self, gameObj, entityType, position, playerName):
+    def __init__(self, gameObj, buildingType, position, playerName):
         self.gameObj = gameObj
-        self.healthPoint = constants.builds_dict[entityType]['hp']
-        self.image = constants.builds_dict[entityType]['tile']
+        self.healthPoint = constants.builds_dict[buildingType]['hp']
+        self.image = constants.builds_dict[buildingType]['tile']
         self.position = position
-        self.entityType = entityType
+        self.entityType = buildingType
         self.playerName = playerName
-        
-        
+
+
+    def create(self):
+
+        if 'children' in constants.builds_dict[self.entityType].keys():
+            childrenType = constants.builds_dict[self.entityType]['children']
+            self.gameObj.persons.append(Person(self.gameObj, childrenType, self.position, self.playerName))
+            for differentRessource, cost in units_dict[childrenType]['cout'].items():
+                compteurs_joueurs[self.playerName]['ressources'][differentRessource] -= cost
 
 
     
