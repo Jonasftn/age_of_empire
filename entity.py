@@ -48,7 +48,7 @@ class Entity:
         self.lastTime = pygame.time.get_ticks()
         self.gameObj = gameObj
 
-    def update():
+    def update(self):
 
         # Motion
         if self.isMoving:
@@ -84,12 +84,14 @@ class Entity:
     def collect(self, ressourceName):
 
         # We are on the ressource, we pickup
-        if self.position in self.gameObj.ressourcesDict and ressource.quantity > 0:
-            self.quantity = min(ressource.quantity, 20)
-            ressource.quantity = max(0, ressource.quantity - 20)
+        if self.position in self.gameObj.ressourcesDict:
+            ressource = self.gameObj.ressourcesDict[self.position]
+            if ressource.quantity > 0:
+                self.quantity = min(ressource.quantity, 20)
+                ressource.quantity = max(0, ressource.quantity - 20)
 
             # We go to our closest building
-            self.finalPosition = self.get_closest_building(playerName)
+            self.finalPosition = self.get_closest_building(self.playerName)
             self.isMoving = True
 
         # We are in our building, we store the ressource and remove the action

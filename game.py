@@ -31,6 +31,9 @@ class Game:
     def __init__(self):
 
         self.tuiles = {}
+        self.persons = []
+        self.buildingsDict = {}
+        self.ressourcesDict = {}  
 
         # MAP
         self.scroll_speed = 30
@@ -75,9 +78,7 @@ class Game:
         self.tiles = {}
         self.test = deque()
 
-        self.personsDict = {}
-        self.buildingsDict = {}
-        self.ressourcesDict = {}               
+             
         # RECOLTE_RESSOURCES
         self.recolte = Recolte_ressources(self)
 
@@ -309,14 +310,14 @@ class Game:
                         # Convertir chaque ligne en une chaîne de caractères avec des espaces entre les éléments
                         f.write(" ".join(str(cell) for cell in row) + "\n")
 
-                position = self.unit.placer_joueurs_cercle(self.n, 40, size // 2, size // 2)
+                positions = self.unit.placer_joueurs_cercle(self.n, 40, size // 2, size // 2)
                 self.Initialisation_compteur.initialize_resources(self.selected_unit, self.n)
 
 
-                self.buildings.initialisation_compteur(position)
+                self.buildings.initialisation_compteur(positions)
 
 
-                self.unit.initialisation_compteur(position)
+                self.unit.initialisation_compteur(positions)
                 self.draw_mini_map(DISPLAYSURF)
 
 
@@ -704,16 +705,17 @@ class Game:
                 if event.type == KEYDOWN and event.key == K_h:
 
 
-                    joueur = 'joueur_1'
+                    """joueur = 'joueur_1'
                     type_unite = 'v'
                     id_unite = 0
                     position_0 = next((position for position, data in self.tuiles.items() if 'unites' in data and 'joueur_1' in data['unites'] and 'v' in data['unites']['joueur_1'] and 0 in data['unites']['joueur_1']['v']), None)
                     position = self.recolte.trouver_plus_proche_ressource(position_0, joueur, type_unite, id_unite, ressource='F')
                     print(position)
                     self.unit.deplacer_unite(joueur, type_unite, id_unite, position)
+                    """
                     for joueur, ia in self.ia_joueurs.items():
                         ia.execute(joueur)
-                    
+                    """
                     action_a_executer.append(
                         lambda posress=position: self.recolte.recolter_ressource_plus_proche_via_trouver(joueur, type_unite, id_unite, posress=posress))
                     def action_apres_deplacement():
@@ -730,7 +732,7 @@ class Game:
                             ressource = 'f'
                             self.recolte.deposer_ressources(quantite, joueur, type_unite, id_unite, ressource)
 
-                    action_a_executer.append(deposer_ressources_in_batiment)
+                    action_a_executer.append(deposer_ressources_in_batiment)"""
 
                 if event.type == KEYDOWN and event.key == K_KP_MINUS:  # Touche "-"
                     self.unit.decrementer_hp_unite()

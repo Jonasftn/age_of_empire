@@ -68,7 +68,7 @@ class TileMap:
             if (start_x, start_y) not in self.gameObj.tuiles:
                 ressource = Ressource(self.gameObj, 'W', (start_x, start_y))
                 self.gameObj.ressourcesDict[start_x, start_y] = ressource
-                self.gameObj.tuiles[(start_x, start_y)] = {'ressources': "W", 'quantite': ressources_dict['W']['quantite']}
+                #self.gameObj.tuiles[(start_x, start_y)] = {'ressources': "W", 'quantite': ressources_dict['W']['quantite']}
 
             while len(wood_tiles) < patch_size:
                 tile_x, tile_y = random.choice(wood_tiles)
@@ -80,7 +80,7 @@ class TileMap:
                     if (new_x, new_y) not in self.gameObj.tuiles:
                         ressource = Ressource(self.gameObj,'W', (new_x, new_y))
                         self.gameObj.ressourcesDict[new_x, new_y] = ressource
-                        self.gameObj.tuiles[(new_x, new_y)] = {'ressources': "W", 'quantite': ressources_dict['W']['quantite']}
+                        #self.gameObj.tuiles[(new_x, new_y)] = {'ressources': "W", 'quantite': ressources_dict['W']['quantite']}
                         wood_tiles.append((new_x, new_y))
 
     def add_gold_patches(self):
@@ -98,7 +98,7 @@ class TileMap:
             if (start_x, start_y) not in self.gameObj.tuiles:
                 ressource = Ressource(self.gameObj, 'G', (start_x, start_y))
                 self.gameObj.ressourcesDict[start_x, start_y] = ressource
-                self.gameObj.tuiles[(start_x, start_y)] = {'ressources': "G", 'quantite': ressources_dict['G']['quantite']}
+                #self.gameObj.tuiles[(start_x, start_y)] = {'ressources': "G", 'quantite': ressources_dict['G']['quantite']}
 
             while len(gold_tiles) < patch_size:
                 tile_x, tile_y = random.choice(gold_tiles)
@@ -110,7 +110,7 @@ class TileMap:
                     if (new_x, new_y) not in self.gameObj.tuiles:
                         ressource = Ressource(self.gameObj, 'G', (new_x, new_y))
                         self.gameObj.ressourcesDict[new_x, new_y] = ressource
-                        self.gameObj.tuiles[(new_x, new_y)] = {'ressources': "G", 'quantite': ressources_dict['G']['quantite']}
+                        #self.gameObj.tuiles[(new_x, new_y)] = {'ressources': "G", 'quantite': ressources_dict['G']['quantite']}
                         gold_tiles.append((new_x, new_y))
 
     def add_unit(self, unit_letter):
@@ -298,7 +298,6 @@ class TileMap:
                 mapToDisplay[position[0]][position[1]] = (self.gameObj.buildingsDict[position].entityType, self.gameObj.buildingsDict[position].playerName)
 
 
-
         for row in range(size):
             for col in range(size):
                 
@@ -358,6 +357,37 @@ class TileMap:
                 iso_y = (cart_x + cart_y) / 2 - cam_y - offset_y
 
                 display_surface.blit(tile.image, (iso_x, iso_y))
+
+            for person in self.gameObj.persons:
+                (x, y) = person.position
+
+                unit_tile = units_dict.get(person.entityType, {}).get('image')
+                if not unit_tile:
+                    return  # Si l'image n'existe pas, ne rien faire
+
+                if not unit_tile or not isinstance(unit_tile.image, pygame.Surface):
+                    continue  # Si l'image n'est pas valide, passez à l'élément suivant
+
+                # Récupérer la couleur du joueur depuis PLAYER_COLORS
+                player_color = PLAYER_COLORS.get(person.playerName, (255, 255, 255))  # Blanc par défaut
+
+                # Appliquer un filtre de couleur sur une copie de l'image
+                unit_image_colored = self.apply_color_filter(unit_tile.image, player_color)
+                centered_col = x - size // 2  # Décalage en X (par rapport à la grille)
+                centered_row = y - size // 2
+                # Calculer les offsets
+                offset_x = tile_grass.width_half - unit_tile.width // 2
+                offset_y = tile_grass.height_half - unit_tile.height // 2
+
+                cart_x = centered_col * tile_grass.width_half
+                cart_y = centered_row * tile_grass.height_half
+                # Recalculer les coordonnées isométriques pour l'unité
+                iso_x = (cart_x - cart_y) - cam_x + offset_x
+                iso_y = (cart_x + cart_y) / 2 - cam_y - offset_y
+                #print("reel",iso_x, iso_y)
+
+                # print("units", cart_x,cart_y)
+                display_surface.blit(unit_image_colored, (iso_x, iso_y))
 
 
 

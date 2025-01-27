@@ -119,6 +119,8 @@ class Initialisation_Compteur:
                 compteurs['batiments']['S'] = 2
                 compteurs['batiments']['A'] = 2
 
+        
+
     def draw_ressources(self):
         x_barre_base = 100  # Position de départ en X pour la première colonne
         y_barre_base = 40  # Position de départ en Y pour la première ligne
