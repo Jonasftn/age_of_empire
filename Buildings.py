@@ -44,7 +44,7 @@ class Buildings:
             angle = angle_increment * i
             cart_x = int(center_x + rayon * math.cos(math.radians(angle)))  # Calcul de la position X
             cart_y = int(center_y + rayon * math.sin(math.radians(angle)))  # Calcul de la position Y
-            positions.append((cart_y-2, cart_x-2))  # Ajouter les coordonnées à la liste
+            positions.append((cart_x-2, cart_y-2))  # Ajouter les coordonnées à la liste
         return positions
 
     # pour del : del self.gameObj.tuiles[(60, 110)]['unites']['v'][0]
@@ -72,12 +72,9 @@ class Buildings:
 
         return coord_libres
 
-    def trouver_coordonnees_motif(self, x, y, taille, max_x, max_y, offset_x, offset_y):
-
-
-        for i in range (1000):
-            x = randint(0, 119)
-            y = randint(0, 119)
+    def trouver_coordonnees_motif(self, x, y, players, rayon, center_x, center_y):
+        list_position_joueur=self.placer_joueurs_cercle(players,rayon,center_x, center_y)
+        for (x,y) in list_position_joueur:
             if (x, y) not in self.gameObj.buildingsDict.keys() and (x, y) not in self.gameObj.ressourcesDict.keys():
                 return (x, y)
         """"
@@ -380,14 +377,10 @@ class Buildings:
 
     def initialisation_compteur(self, position):
         for idx, (joueur, data) in enumerate(compteurs_joueurs.items()):
-            x, y = position[idx]  # Point central pour ce joueur
-            offsets = self.generer_offsets()
-            offset_x = None
-            offset_y = None 
-            taille = 1
+            (x,y) = position[idx]  # Point central pour ce joueur
 
-            position_building = self.trouver_coordonnees_motif(x, y, taille, size, size, offset_x, offset_y)
-            self.gameObj.buildingsDict[position_building] = Building(self.gameObj, 'T', position_building, joueur)
+            #position_building = self.trouver_coordonnees_motif(self, x, y, players, rayon, center_x, center_y)
+            self.gameObj.buildingsDict[(x,y)] = Building(self.gameObj, 'T', (x,y), joueur)
             """for batiment, nombre in data['batiments'].items():
                 taille = builds_dict[batiment]['taille']
 

@@ -43,8 +43,8 @@ class Person():
             (xFinal, yFinal) = self.finalPosition
             
             if abs(x - xFinal) < self.epsilon and abs(y - yFinal) < self.epsilon:
-                self.position = self.finalPosition
-                self.isMoving = False
+                    self.position = self.finalPosition
+                    self.isMoving = False
                 
             else:
                 currentTime = pygame.time.get_ticks()

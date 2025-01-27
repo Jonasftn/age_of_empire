@@ -310,14 +310,13 @@ class Game:
                         # Convertir chaque ligne en une chaîne de caractères avec des espaces entre les éléments
                         f.write(" ".join(str(cell) for cell in row) + "\n")
 
-                positions = self.unit.placer_joueurs_cercle(self.n, 40, size // 2, size // 2)
+                positions = self.buildings.placer_joueurs_cercle(self.n, 40, size // 2, size // 2)
                 self.Initialisation_compteur.initialize_resources(self.selected_unit, self.n)
 
 
                 self.buildings.initialisation_compteur(positions)
-
-
                 self.unit.initialisation_compteur(positions)
+                
                 self.draw_mini_map(DISPLAYSURF)
 
 
