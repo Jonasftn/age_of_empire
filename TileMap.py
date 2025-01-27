@@ -66,7 +66,7 @@ class TileMap:
             start_y = random.randint(0, size - 1)
             wood_tiles = [(start_x, start_y)]
             if (start_x, start_y) not in self.gameObj.tuiles:
-                ressource = Ressource('W', (start_x, start_y))
+                ressource = Ressource(self.gameObj, 'W', (start_x, start_y))
                 self.gameObj.ressourcesDict[start_x, start_y] = ressource
                 self.gameObj.tuiles[(start_x, start_y)] = {'ressources': "W", 'quantite': ressources_dict['W']['quantite']}
 
@@ -78,7 +78,7 @@ class TileMap:
 
                 if 0 <= new_x < size and 0 <= new_y < size:
                     if (new_x, new_y) not in self.gameObj.tuiles:
-                        ressource = Ressource('W', (new_x, new_y))
+                        ressource = Ressource(self.gameObj,'W', (new_x, new_y))
                         self.gameObj.ressourcesDict[new_x, new_y] = ressource
                         self.gameObj.tuiles[(new_x, new_y)] = {'ressources': "W", 'quantite': ressources_dict['W']['quantite']}
                         wood_tiles.append((new_x, new_y))
@@ -96,7 +96,7 @@ class TileMap:
 
             gold_tiles = [(start_x, start_y)]
             if (start_x, start_y) not in self.gameObj.tuiles:
-                ressource = Ressource('G', (start_x, start_y))
+                ressource = Ressource(self.gameObj, 'G', (start_x, start_y))
                 self.gameObj.ressourcesDict[start_x, start_y] = ressource
                 self.gameObj.tuiles[(start_x, start_y)] = {'ressources': "G", 'quantite': ressources_dict['G']['quantite']}
 
@@ -108,7 +108,7 @@ class TileMap:
 
                 if 0 <= new_x < size and 0 <= new_y < size:
                     if (new_x, new_y) not in self.gameObj.tuiles:
-                        ressource = Ressource('G', (new_x, new_y))
+                        ressource = Ressource(self.gameObj, 'G', (new_x, new_y))
                         self.gameObj.ressourcesDict[new_x, new_y] = ressource
                         self.gameObj.tuiles[(new_x, new_y)] = {'ressources': "G", 'quantite': ressources_dict['G']['quantite']}
                         gold_tiles.append((new_x, new_y))
