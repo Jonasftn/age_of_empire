@@ -200,35 +200,18 @@ class Units:
 
         return iso_x, iso_y
 
-    def placer_joueurs_cercle(self, players, rayon, center_x, center_y):
-        """Calcule les positions cartésiennes pour `n` joueurs répartis en cercle autour du centre."""
-        positions = []
-        angle_increment = 360 / players  # Divise le cercle en n parties égales
-        for i in range(players):
-            angle = angle_increment * i
-            cart_x = int(center_x + rayon * math.cos(math.radians(angle)))  # Calcul de la position X
-            cart_y = int(center_y + rayon * math.sin(math.radians(angle)))  # Calcul de la position Y
-            positions.append((cart_y-2, cart_x-2))  # Ajouter les coordonnées à la liste
-        return positions
-
-
-
     #pour del : del self.gameObj.tuiles[(60, 110)]['unites']['v'][0]
 
     def initialisation_compteur(self, positions):
-
         for idx, (joueur, data) in enumerate(compteurs_joueurs.items()):
-            (x, y) = positions[idx]  # Position initiale de chaque joueur
-
+            (x,y) = positions[idx]  # Position initiale de chaque joueur
             for typeName, nombre in data['unites'].items():
                 compteurs_unites[typeName] = 0
                 print("nombre", nombre)
                 for i in range(nombre):
                     identifiant_unite = compteurs_unites[typeName]
                     #compteurs_unites[typeName] += 1
- 
-
-                    new_person = Person(self.gameObj, typeName, (x, y), joueur)
+                    new_person = Person(self.gameObj, typeName, (x,y), joueur)
                     self.gameObj.persons.append(new_person)
 
 

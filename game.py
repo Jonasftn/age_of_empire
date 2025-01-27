@@ -310,100 +310,14 @@ class Game:
                         # Convertir chaque ligne en une chaîne de caractères avec des espaces entre les éléments
                         f.write(" ".join(str(cell) for cell in row) + "\n")
 
-                positions = self.unit.placer_joueurs_cercle(self.n, 40, size // 2, size // 2)
+                positions = self.buildings.placer_joueurs_cercle(self.n, 40, size // 2, size // 2)
                 self.Initialisation_compteur.initialize_resources(self.selected_unit, self.n)
 
 
                 self.buildings.initialisation_compteur(positions)
-
-
                 self.unit.initialisation_compteur(positions)
+                
                 self.draw_mini_map(DISPLAYSURF)
-
-    """def draw_mini_map(self, display_surface):
-                
-        for i in range(size):
-            for j in range(size):
-                mapToDisplay[i][j] = " "
-        for position in self.ressourcesDict :
-                mapToDisplay[position[0]][position[1]] = (self.ressourcesDict[position].entityType, None)
-        for position in self.buildingsDict :
-                mapToDisplay[position[0]][position[1]] = (self.buildingsDict[position].entityType, self.buildingsDict[position].playerName)
-        
-                
-        losange_surface = pygame.Surface((self.mini_map_size_x, self.mini_map_size_y), pygame.SRCALPHA)
-        losange_surface.fill((0, 0, 0, 0))  # Remplir de transparent
-
-        mini_map_surface = pygame.Surface((self.mini_map_size_x, self.mini_map_size_y), pygame.SRCALPHA)
-        mini_map_surface.fill((0, 0, 0, 0))  # Fond transparent
-        tile_width_half = 1
-        tile_height_half = 1
-
-        for row in range(size):
-            for col in range(size):
-                # Récupérer les données de la tuile ou définir une couleur par défaut
-                color = (34, 139, 34)  # Vert par défaut pour les tuiles vides
-                tileType = mapToDisplay[col][row][0]
-
-                ressource = self.ressourcesDict.get((col, row))
-                if ressource:
-                    if ressource.entityType == "G":  # Or
-                        color = (255, 215, 0)
-                    elif ressource.entityType == "W":  # Bois
-                        color = (139, 69, 19)
-
-                building = self.buildingsDict.get((col, row))
-                if building:
-                        color = BLACK
-
-
-                for person in self.persons:  # Parcourir chaque objet dans la liste self.persons
-                    print(person.position)
-                    if hasattr(person, "position"):  # Vérifiez si l'objet a bien un attribut 'position'
-                        if person.position == (col, row):  # Vérifier si la position correspond
-                            color = (255, 0, 0)
-                            break
-
-
-                centered_col = col - (size // 2)
-                centered_row = row - (size // 2)
-
-                cart_x = centered_col * tile_width_half * self.mini_map_scale
-                cart_y = centered_row * tile_height_half * self.mini_map_scale
-
-                iso_x = (cart_x - cart_y) / 2 + self.mini_map_size_x // 2
-                iso_y = (cart_x + cart_y) / 4 + self.mini_map_size_y // 2
-
-                # Dessin de la tuile sur la mini-carte
-                pygame.draw.rect(mini_map_surface, color, (iso_x, iso_y, self.mini_map_scale, self.mini_map_scale))
-
-        losange_points = [
-            (self.mini_map_size_x // 2 + 2, 12),
-            (self.mini_map_size_x + 1, self.mini_map_size_y // 2),
-            (self.mini_map_size_x // 2 + 2, self.mini_map_size_y - 12),
-            (2, self.mini_map_size_y // 2)
-        ]
-
-        pygame.draw.polygon(losange_surface, (0, 0, 0), losange_points, 2)  # Contour noir de 2 pixels
-        losange_surface.blit(mini_map_surface, (0, 0))  # Positionner la mini-carte sur le losange
-
-        # Afficher le losange sur l'écran principal
-        display_surface.blit(losange_surface, (
-            screen_width - self.mini_map_size_x - 10, screen_height - self.mini_map_size_y - 10))
-
-        losange_points = [
-            (self.mini_map_size_x // 2 + 2, 12),
-            (self.mini_map_size_x + 1, self.mini_map_size_y // 2),
-            (self.mini_map_size_x // 2 + 2, self.mini_map_size_y - 12),
-            (2, self.mini_map_size_y // 2)
-        ]
-
-        pygame.draw.polygon(losange_surface, (0, 0, 0), losange_points, 2)  # Contour noir de 2 pixels
-        losange_surface.blit(mini_map_surface, (0, 0))  # Positionner la mini-carte sur le losange
-
-        # Afficher le losange sur l'écran principal
-        display_surface.blit(losange_surface, (
-            screen_width - self.mini_map_size_x - 10, screen_height - self.mini_map_size_y - 10))"""
 
 
     def draw_mini_map(self, display_surface):
