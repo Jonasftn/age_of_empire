@@ -20,6 +20,7 @@ class Person():
         self.gameObj = gameObj
         self.healthPoint = constants.units_dict[entityType]['hp']
         self.image = constants.units_dict[entityType]['image']
+        self.cost = constants.units_dict[entityType]['cout']
         self.position = position
         self.finalPosition = position
         self.entityType = entityType
@@ -72,31 +73,44 @@ class Person():
                     self.build(self)
                     self.actionNames.pop(0)
 
+                if actionName == 'createS':
+                    self.create("S")
+                    self.actionNames.pop(0)
+
 
     def build(self, nearWhat = None):
         # We research the closest building
         actualBuildings = self.get_closest_building(self.playerName)
-
+        x_actual = actualBuildings[0]
+        y_actual = actualBuildings[1]
         #We find position for new building
-        radius = 20
-        x_center, y_center = actualBuildings
-        for caseX in range(-radius, radius + 1):
-            for caseY in range(-radius, radius + 1):
-                x = x_center + caseX
-                y = y_center + caseY
-                # Vérifie si la case est dans le cercle et dans les limites [0, 120]
-                if 0 <= x <= 120 and 0 <= y <= 120:
-                    if (x, y) not in self.gameObj.buildingsDict.keys() and (x, y) not in self.gameObj.ressourcesDict.keys():
-                        self.finalPosition = (x, y)
-                        break
+        diameter = 20
+        for i in range (1000):
+            caseX = random.randint(-diameter, diameter)
+            caseY = random.randint(-diameter, diameter)
+            x = x_actual + caseX
+            y = y_actual + caseY
+            # Vérifie si la case est dans le cercle et dans les limites [0, 120]
+            if 0 <= x <= 120 and 0 <= y <= 120:
+                if (x, y) not in self.gameObj.buildingsDict.keys() and (x, y) not in self.gameObj.ressourcesDict.keys():
+                    self.finalPosition = (x, y)
+                    break
+            
         self.isMoving = True
-
+        print("JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJjj la position finale est", self.gameObj.buildingsDict.keys())
         # We are on the position, we build
-        if self.position == self.finalPosition:
+        if self.isMoving == False:
+            print ("position creation building", self.position)
             building = Building(self.gameObj, 'S', self.position, self.playerName)
             self.gameObj.buildingsDict[self.position] = building
 
-
+    def create(self, entityType):
+        for buildingType in self.gameObj.buildingsDict.values():
+            if buildingType.entityType == entityType:
+                self.gameObj.persons.append(Person(self.gameObj, entityType.lower(), buildingType.position, self.playerName))
+                for differentRessource, cost in self.cost:
+                    
+                    compteurs_joueurs[self.playerName]['ressources'][differentRessource] += cost
                 
     def collect(self, ressourceName):
         # We go to the closest ressource

@@ -63,14 +63,14 @@ class Initialisation_Compteur:
                 },
                 # Bâtiments
                 'batiments': {
-                    'T': 0,  # Tour de guet
+                    'T': 0,  # Town Center
                     'H': 0,  # Maison
-                    'C': 0,  # Centre-ville
+                    'C': 0,  # Camp
                     'F': 0,  # Ferme
                     'B': 0,  # Caserne
                     'S': 0,  # Forge
-                    'A': 0,  # Académie
-                    'K': 0  # Château
+                    'A': 0,  # Archerie
+                    'K': 0  # Tour de garde
                 }
             }
     def update_compteur(self):
@@ -174,3 +174,4 @@ class Initialisation_Compteur:
                     type = ["T", "H", "C", "F", "B", "S", "A", "K"][i]
                     barre.draw_barre_units(DISPLAYSURF, x_barre, y_barre + barre_height + barre_units_height,
                                            self.compteur[joueur]['batiments'][type], i, total_images_barre_builds)
+
