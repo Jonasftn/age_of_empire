@@ -33,7 +33,7 @@ FPSCLOCK.tick(60)
 
 size = 120
 half_size = size//2
-
+mapToDisplay =  [[('G', None) for i in range(size)] for j in range(size)]
 barre_width = screen_width//2.5  # Largeur de la barre
 barre_height = screen_height//13.5 # Hauteur de la barre
 
@@ -80,7 +80,7 @@ units_dict = {
         'hp': 25,
         'temps_entrainement': 25,
         'attaque': 2,
-        'vitesse': 0.8,
+        'vitesse': 8.,
         'capacité' : 20
     },
     's': {  # Épéiste

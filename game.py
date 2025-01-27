@@ -322,6 +322,16 @@ class Game:
 
 
     def draw_mini_map(self, display_surface):
+                
+        """for i in range(size):
+            for j in range(size):
+                mapToDisplay[i][j] = " "
+        for position in self.ressourcesDict :
+                mapToDisplay[position[0]][position[1]] = (self.ressourcesDict[position].entityType, None)
+        for position in self.buildingsDict :
+                mapToDisplay[position[0]][position[1]] = (self.buildingsDict[position].entityType, self.buildingsDict[position].playerName)
+        """
+                
         losange_surface = pygame.Surface((self.mini_map_size_x, self.mini_map_size_y), pygame.SRCALPHA)
         losange_surface.fill((0, 0, 0, 0))  # Remplir de transparent
 
@@ -364,6 +374,20 @@ class Game:
 
                 # Dessin de la tuile sur la mini-carte
                 pygame.draw.rect(mini_map_surface, color, (iso_x, iso_y, self.mini_map_scale, self.mini_map_scale))
+
+        losange_points = [
+            (self.mini_map_size_x // 2 + 2, 12),
+            (self.mini_map_size_x + 1, self.mini_map_size_y // 2),
+            (self.mini_map_size_x // 2 + 2, self.mini_map_size_y - 12),
+            (2, self.mini_map_size_y // 2)
+        ]
+
+        pygame.draw.polygon(losange_surface, (0, 0, 0), losange_points, 2)  # Contour noir de 2 pixels
+        losange_surface.blit(mini_map_surface, (0, 0))  # Positionner la mini-carte sur le losange
+
+        # Afficher le losange sur l'écran principal
+        display_surface.blit(losange_surface, (
+            screen_width - self.mini_map_size_x - 10, screen_height - self.mini_map_size_y - 10))
 
         losange_points = [
             (self.mini_map_size_x // 2 + 2, 12),
@@ -778,8 +802,10 @@ class Game:
                 DISPLAYSURF.fill(BLACK)
                 self.tile_map.render2(DISPLAYSURF, self.cam_x, self.cam_y)
 
+                #self.unit.update_position()
+                for person in self.persons:
+                    person.update()
 
-                self.unit.update_position()
                 current_time = pygame.time.get_ticks()
 
                 for position, data in self.tuiles.items():

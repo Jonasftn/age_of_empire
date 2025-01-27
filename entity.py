@@ -28,7 +28,7 @@ class Person():
         self.actionNames = []
         self.quantity = 0
         self.isMoving = False
-        #self.lastTime = pygame.time.get_ticks()
+        self.lastTime = pygame.time.get_ticks()
         self.epsilon = 0.001
         self.gameObj = gameObj
 
@@ -132,7 +132,7 @@ class Building():
     def __init__(self, gameObj, entityType, position, playerName):
         self.gameObj = gameObj
         self.healthPoint = constants.builds_dict[entityType]['hp']
-        self.image = constants.builds_dict[entityType]['image']
+        self.image = constants.builds_dict[entityType]['tile']
         self.position = position
         self.entityType = entityType
         self.playerName = playerName

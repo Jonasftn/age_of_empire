@@ -294,48 +294,14 @@ class TileMap:
                 mapToDisplay[i][j] = " "
         for position in self.gameObj.ressourcesDict :
                 mapToDisplay[position[0]][position[1]] = (self.gameObj.ressourcesDict[position].entityType, None)
-        for position in self.gameObj.buildingsDict :
-                mapToDisplay[position[0]][position[1]] = (self.gameObj.buildingsDict[position].entityType, self.gameObj.buildingsDict[position].playerName)
-
 
         for row in range(size):
             for col in range(size):
                 
                 tileType = mapToDisplay[row][col][0]
-                if tileType in ("T", "H", "C", "F", "B", "S", "A", "K"):
-                    for typeBlock in ("T", "H", "C", "F", "B", "S", "A", "K"):
-                        if tileType == typeBlock:
-                            tile = builds_dict[typeBlock]['tile']
-                            offset_y = tile.height - tile_grass.height
-                            unit_tile = builds_dict.get(tileType, {}).get('tile')
-                            if not unit_tile or not isinstance(unit_tile.image, pygame.Surface):
-                                continue  # Si l'image n'est pas valide, passez à l'élément suivant
-
-                            # Récupérer la couleur du joueur depuis PLAYER_COLORS
-                            player_color = PLAYER_COLORS.get(mapToDisplay[row][col][1], (255, 255, 255))  # Blanc par défaut
-
-                            # Appliquer un filtre de couleur sur une copie de l'image
-                            unit_image_colored = self.apply_color_filter(unit_tile.image, player_color)
-
-                            # Calculer les coordonnées cartésiennes de la tuile
-                            centered_col = row - size // 2  # Décalage en X (par rapport à la grille)
-                            centered_row = col - size // 2  # Décalage en Y (par rapport à la grille)
-
-                            offset_y = tile_grass.height_half - unit_tile.height
-                            offset_x = tile_grass.width_half - unit_tile.width
-
-                            # Calcul des coordonnées cartésiennes
-                            cart_x = centered_col * tile_grass.width_half
-                            cart_y = centered_row * tile_grass.height_half
-
-                            # Conversion en coordonnées isométriques
-                            iso_x = (cart_x - cart_y) - cam_x  # - offset_x
-                            iso_y = (cart_x + cart_y) / 2 - cam_y + offset_y
-
-                            display_surface.blit(unit_image_colored, (iso_x, iso_y))
-                            return
                 
-                elif tileType == "W":
+                
+                if tileType == "W":
                     tile = ressources_dict['W']['image']
                     offset_y = tile.height - tile_grass.height
                 elif tileType == "G":
@@ -358,36 +324,73 @@ class TileMap:
 
                 display_surface.blit(tile.image, (iso_x, iso_y))
 
-            for person in self.gameObj.persons:
-                (x, y) = person.position
 
-                unit_tile = units_dict.get(person.entityType, {}).get('image')
-                if not unit_tile:
-                    return  # Si l'image n'existe pas, ne rien faire
+        for position, building in self.gameObj.buildingsDict.items():
+            (x, y) = position
+            tileType = building.entityType
+            for buildingType in ("T", "H", "C", "F", "B", "S", "A", "K"):
+                if tileType == buildingType:
+                    tile = builds_dict[buildingType]['tile']
+                    offset_y = tile.height - tile_grass.height
+                    unit_tile = builds_dict.get(tileType, {}).get('tile')
+                    if not unit_tile or not isinstance(unit_tile.image, pygame.Surface):
+                        continue  # Si l'image n'est pas valide, passez à l'élément suivant
 
-                if not unit_tile or not isinstance(unit_tile.image, pygame.Surface):
-                    continue  # Si l'image n'est pas valide, passez à l'élément suivant
+                    # Récupérer la couleur du joueur depuis PLAYER_COLORS
+                    player_color = PLAYER_COLORS.get(building.playerName, (255, 255, 255))  # Blanc par défaut
 
-                # Récupérer la couleur du joueur depuis PLAYER_COLORS
-                player_color = PLAYER_COLORS.get(person.playerName, (255, 255, 255))  # Blanc par défaut
+                    # Appliquer un filtre de couleur sur une copie de l'image
+                    unit_image_colored = self.apply_color_filter(unit_tile.image, player_color)
 
-                # Appliquer un filtre de couleur sur une copie de l'image
-                unit_image_colored = self.apply_color_filter(unit_tile.image, player_color)
-                centered_col = x - size // 2  # Décalage en X (par rapport à la grille)
-                centered_row = y - size // 2
-                # Calculer les offsets
-                offset_x = tile_grass.width_half - unit_tile.width // 2
-                offset_y = tile_grass.height_half - unit_tile.height // 2
+                    # Calculer les coordonnées cartésiennes de la tuile
+                    centered_col = x - size // 2  # Décalage en X (par rapport à la grille)
+                    centered_row = y - size // 2  # Décalage en Y (par rapport à la grille)
 
-                cart_x = centered_col * tile_grass.width_half
-                cart_y = centered_row * tile_grass.height_half
-                # Recalculer les coordonnées isométriques pour l'unité
-                iso_x = (cart_x - cart_y) - cam_x + offset_x
-                iso_y = (cart_x + cart_y) / 2 - cam_y - offset_y
-                #print("reel",iso_x, iso_y)
+                    offset_y = tile_grass.height_half - unit_tile.height
+                    offset_x = tile_grass.width_half - unit_tile.width
 
-                # print("units", cart_x,cart_y)
-                display_surface.blit(unit_image_colored, (iso_x, iso_y))
+                    # Calcul des coordonnées cartésiennes
+                    cart_x = centered_col * tile_grass.width_half
+                    cart_y = centered_row * tile_grass.height_half
+
+                    # Conversion en coordonnées isométriques
+                    iso_x = (cart_x - cart_y) - cam_x  # - offset_x
+                    iso_y = (cart_x + cart_y) / 2 - cam_y + offset_y
+
+                    display_surface.blit(unit_image_colored, (iso_x, iso_y))
+
+
+
+        for person in self.gameObj.persons:
+            (x, y) = person.position
+
+            unit_tile = units_dict.get(person.entityType, {}).get('image')
+            if not unit_tile:
+                return  # Si l'image n'existe pas, ne rien faire
+
+            if not unit_tile or not isinstance(unit_tile.image, pygame.Surface):
+                continue  # Si l'image n'est pas valide, passez à l'élément suivant
+
+            # Récupérer la couleur du joueur depuis PLAYER_COLORS
+            player_color = PLAYER_COLORS.get(person.playerName, (255, 255, 255))  # Blanc par défaut
+
+            # Appliquer un filtre de couleur sur une copie de l'image
+            unit_image_colored = self.apply_color_filter(unit_tile.image, player_color)
+            centered_col = x - size // 2  # Décalage en X (par rapport à la grille)
+            centered_row = y - size // 2
+            # Calculer les offsets
+            offset_x = tile_grass.width_half - unit_tile.width // 2
+            offset_y = tile_grass.height_half - unit_tile.height // 2
+
+            cart_x = centered_col * tile_grass.width_half
+            cart_y = centered_row * tile_grass.height_half
+            # Recalculer les coordonnées isométriques pour l'unité
+            iso_x = (cart_x - cart_y) - cam_x + offset_x
+            iso_y = (cart_x + cart_y) / 2 - cam_y - offset_y
+            #print("reel",iso_x, iso_y)
+
+            # print("units", cart_x,cart_y)
+            display_surface.blit(unit_image_colored, (iso_x, iso_y))
 
 
 
