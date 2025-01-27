@@ -112,12 +112,12 @@ class StratOffensive:
         for person in self.gameObj.persons:
             if person.playerName == joueur:
                 print ('HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHh')
-                actionPossible = {'G', 'W'}
+                actionPossible = ['G', 'W']
                 print ('execute', joueur, 'person.playerName', person.playerName, 'len(actions', len(person.actionNames), 'type', person.entityType, 'position', person.position)
 
                 if person.playerName == joueur and len(person.actionNames) == 0 and person.entityType == 'v':
                     newAction = randint(0, 1)
-                    person.actionNames.append(newAction)
+                    person.actionNames.append(actionPossible[newAction])
 
 
                 
