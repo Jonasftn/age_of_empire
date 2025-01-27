@@ -68,6 +68,35 @@ class Person():
                     self.collect(actionName)
                     self.actionNames.pop(0)
 
+                if actionName == 'B':
+                    self.build(self)
+                    self.actionNames.pop(0)
+
+
+    def build(self, nearWhat = None):
+        # We research the closest building
+        actualBuildings = self.get_closest_building(self.playerName)
+
+        #We find position for new building
+        radius = 20
+        x_center, y_center = actualBuildings
+        for caseX in range(-radius, radius + 1):
+            for caseY in range(-radius, radius + 1):
+                x = x_center + caseX
+                y = y_center + caseY
+                # Vérifie si la case est dans le cercle et dans les limites [0, 120]
+                if 0 <= x <= 120 and 0 <= y <= 120:
+                    if (x, y) not in self.gameObj.buildingsDict.keys() and (x, y) not in self.gameObj.ressourcesDict.keys():
+                        self.finalPosition = (x, y)
+                        break
+        self.isMoving = True
+
+        # We are on the position, we build
+        if self.position == self.finalPosition:
+            building = Building(self.gameObj, 'S', self.position, self.playerName)
+            self.gameObj.buildingsDict[self.position] = building
+
+
                 
     def collect(self, ressourceName):
         # We go to the closest ressource

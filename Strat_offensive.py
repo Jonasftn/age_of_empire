@@ -1,10 +1,12 @@
 from Buildings import Buildings
+import numpy as np
 from Units import Units
 from Recolte_ressources import Recolte_ressources
 from TileMap import TileMap
 from constants import *
 from Initialisation_Compteur import Initialisation_Compteur
-from random import randint
+import random
+
 
 class StratOffensive:
     def __init__(self, gameObj, joueur):
@@ -112,12 +114,18 @@ class StratOffensive:
         for person in self.gameObj.persons:
             if person.playerName == joueur:
                 print ('HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHh')
-                actionPossible = ['G', 'W']
+                proba = np.arange(0, 1.1, 0.1)
+                actionPossible = {'G' : 0.5, 'W': 0.9, 'B': 1}
                 print ('execute', joueur, 'person.playerName', person.playerName, 'len(actions', len(person.actionNames), 'type', person.entityType, 'position', person.position)
 
                 if person.playerName == joueur and len(person.actionNames) == 0 and person.entityType == 'v':
-                    newAction = randint(0, 1)
-                    person.actionNames.append(actionPossible[newAction])
+                    newAction = random.choice(proba)
+                    if newAction <= actionPossible['G']:
+                        person.actionNames.append('G')
+                    elif newAction <= actionPossible['W']:
+                        person.actionNames.append('W')
+                    else:
+                        person.actionNames.append('B')
 
 
                 
