@@ -75,14 +75,9 @@ class Game:
         self.tiles = {}
         self.test = deque()
 
-        tabPersons = []
-        for vi in range (2):
-            vi = Entity.Person('V', (62, 102))
-            
-        
-        tabBuildings = []
-
-        tabRessources = []
+        self.personsDict = {}
+        self.buildingsDict = {}
+        self.ressourcesDict = {}               
         # RECOLTE_RESSOURCES
         self.recolte = Recolte_ressources(self)
 
@@ -307,7 +302,7 @@ class Game:
 
                 self.tile_map.add_wood_patches()
 
-                self.tile_map.render(DISPLAYSURF, self.cam_x, self.cam_y)
+                self.tile_map.render2(DISPLAYSURF, self.cam_x, self.cam_y)
                 # pygame.display.update()
                 with open("test.txt", 'w') as f:
                     for row in map_data:
@@ -779,7 +774,7 @@ class Game:
                 self.unit.update_creation_times()
                 self.buildings.update_creation_times()
                 DISPLAYSURF.fill(BLACK)
-                self.tile_map.render(DISPLAYSURF, self.cam_x, self.cam_y)
+                self.tile_map.render2(DISPLAYSURF, self.cam_x, self.cam_y)
 
 
                 self.unit.update_position()
