@@ -298,7 +298,7 @@ class TileMap:
         for row in range(size):
             for col in range(size):
                 
-                tileType = mapToDisplay[row][col][0]
+                tileType = mapToDisplay[col][row][0]
                 
                 
                 if tileType == "W":

@@ -94,8 +94,8 @@ class Game:
         print (f"One third, expressed as a float is: {1 / 3}")
         for joueur in range(1, self.n + 1):  # Pour chaque joueur (par exemple, joueur_1, joueur_2)
             joueur_nom = f"joueur_{joueur}"
-            if joueur_nom != "joueur_1":
-                self.ia_joueurs[joueur_nom] = StratOffensive(self, joueur_nom)
+            #if joueur_nom != "joueur_1":
+            self.ia_joueurs[joueur_nom] = StratOffensive(self, joueur_nom)
 
 
     def calculate_camera_limits(self):
@@ -801,7 +801,8 @@ class Game:
                 self.buildings.update_creation_times()
                 DISPLAYSURF.fill(BLACK)
                 self.tile_map.render2(DISPLAYSURF, self.cam_x, self.cam_y)
-
+                for joueur, ia in self.ia_joueurs.items():
+                    ia.execute(joueur)
                 #self.unit.update_position()
                 for person in self.persons:
                     person.update()

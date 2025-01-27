@@ -33,8 +33,8 @@ class Person():
         self.gameObj = gameObj
 
     def update(self):
-
-        print ('update', self.playerName, 'moving', self.isMoving, '(x, y)', self.position, '(xFinal, yFinal)', self.finalPosition, 'actions', len(self.actionNames))
+        if self.playerName == 'joueur_2':
+            print ('update', self.playerName, 'moving', self.isMoving, '(x, y)', self.position, '(xFinal, yFinal)', self.finalPosition, 'actions', len(self.actionNames))
 
         # Motion
         if self.isMoving:
@@ -66,9 +66,13 @@ class Person():
 
                 if actionName in ('W', 'G'):
                     self.collect(actionName)
+                    self.actionNames.pop(0)
 
                 
     def collect(self, ressourceName):
+        # We go to the closest ressource
+        self.finalPosition = self.get_closest_ressource(ressourceName)
+        self.isMoving = True
 
         # We are on the ressource, we pickup
         if self.position in self.gameObj.ressourcesDict:
@@ -76,6 +80,8 @@ class Person():
             if ressource.quantity > 0:
                 self.quantity = min(ressource.quantity, 20)
                 ressource.quantity = max(0, ressource.quantity - 20)
+                if ressource.quantity == 0: # We remove the ressource
+                    del self.gameObj.ressourcesDict[self.position]
 
             # We go to our closest building
             self.finalPosition = self.get_closest_building(self.playerName)
@@ -87,7 +93,6 @@ class Person():
             if building.playerName == self.playerName:
                 compteurs_joueurs[self.playerName]['ressources'][ressourceName] += self.quantity
                 self.quantity = 0
-                self.actionNames.pop(0)
 
         # We search another ressource
         else :
@@ -96,17 +101,25 @@ class Person():
             
     def get_closest_ressource(self, ressourceName):
         (x, y) = self.position
+        print ("je suis en ", self.position)
         distanceSquaredMin = 9999999
         positionClosest = None
         for (xRessource, yRessource), ressource in self.gameObj.ressourcesDict.items():
+            print ("est ce que cette valeur marche?", (xRessource, yRessource), ressource.entityType)
             if ressource.entityType == ressourceName:
                 distanceSquared = (x - xRessource)**2 + (y - yRessource)**2
                 print ('distanceSquared', distanceSquared)
                 if distanceSquared < distanceSquaredMin:
+                    print ("je suis la nouvelle distance min", distanceSquared)
+                    print ('xRessource', xRessource, 'yRessource', yRessource)
                     distanceSquaredMin = distanceSquared
                     positionClosest = (xRessource, yRessource)
         print ('positionClosest', positionClosest)
-        return positionClosest
+        for ressource in self.gameObj.ressourcesDict.values():
+            if ressource.position == positionClosest:
+                print ('ressource', ressource.entityType, ressource.position)
+                return positionClosest
+
 
     def get_closest_building(self, playerName):
         (x, y) = self.position
