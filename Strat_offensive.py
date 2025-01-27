@@ -109,7 +109,12 @@ class StratOffensive:
                 self.bouge(joueur, type_unit, id_unite, pos_bois)        
         """
         for person in self.gameObj.persons:
+
+            print ('execute', joueur, 'person.playerName', person.playerName, 'len(actions', len(person.actionNames), 'type', person.entityType)
+
             if person.playerName == joueur and len(person.actionNames) == 0 and person.entityType == 'v':
                 person.actionNames.append("W")
+
+
                 
                 
