@@ -4,6 +4,7 @@ from Recolte_ressources import Recolte_ressources
 from TileMap import TileMap
 from constants import *
 from Initialisation_Compteur import Initialisation_Compteur
+from random import randint
 
 class StratOffensive:
     def __init__(self, gameObj, joueur):
@@ -111,10 +112,12 @@ class StratOffensive:
         for person in self.gameObj.persons:
             if person.playerName == joueur:
                 print ('HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHh')
+                actionPossible = {'G', 'W'}
                 print ('execute', joueur, 'person.playerName', person.playerName, 'len(actions', len(person.actionNames), 'type', person.entityType, 'position', person.position)
 
                 if person.playerName == joueur and len(person.actionNames) == 0 and person.entityType == 'v':
-                    person.actionNames.append("W")
+                    newAction = randint(0, 1)
+                    person.actionNames.append(newAction)
 
 
                 
