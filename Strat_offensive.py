@@ -79,6 +79,8 @@ class StratOffensive:
         Exécute la logique de l'IA pour tous les villageois d'un joueur.
         Si un villageois est inactif, il collecte du bois.
         """
+
+        """
         villageois_inactifs = []
 
         for position, tuile in self.gameObj.tuiles.items():
@@ -105,3 +107,9 @@ class StratOffensive:
             print ('pos_bois', pos_bois)
             if pos_bois:
                 self.bouge(joueur, type_unit, id_unite, pos_bois)        
+        """
+        for person in personsDict.values():
+            if person.playerName == joueur and len(person.actionNames) == 0 and person.entityType == "V":
+                person.actionNames.append("W")
+                
+                
