@@ -76,8 +76,8 @@ class Buildings:
 
 
         for i in range (1000):
-            x = randint(0, 119)
-            y = randint(0, 119)
+            x = randint(0, size-1)
+            y = randint(0, size-1)
             if (x, y) not in self.gameObj.buildingsDict.keys() and (x, y) not in self.gameObj.ressourcesDict.keys():
                 return (x, y)
         """"

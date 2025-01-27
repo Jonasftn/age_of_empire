@@ -119,10 +119,10 @@ class StratOffensive:
         """
         for person in self.gameObj.persons:
             if person.playerName == joueur:
-                print ('HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHh')
+                #print ('HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHh')
                 proba = np.arange(0, 1.1, 0.1)
-                actionsPossibles = ["W"] * 0 + ["G"] * 0 + ["B"] * 1
-                print ('execute', joueur, 'person.playerName', person.playerName, 'len(actions', len(person.actionNames), 'type', person.entityType, 'position', person.position)
+                actionsPossibles = ["W"] * 4 + ["G"] * 0 + ["B"] * 4
+                #print ('execute', joueur, 'person.playerName', person.playerName, 'len(actions', len(person.actionNames), 'type', person.entityType, 'position', person.position)
 
                 if person.playerName == joueur and len(person.actionNames) == 0 and person.entityType == 'v':
                     newAction = random.choice(actionsPossibles)

@@ -32,10 +32,12 @@ class Person():
         self.lastTime = pygame.time.get_ticks()
         self.epsilon = 0.001
         self.gameObj = gameObj
+        self.isFirstCycle = True
 
     def update(self):
-        if self.playerName == 'joueur_2':
-            print ('update', self.playerName, 'moving', self.isMoving, '(x, y)', self.position, '(xFinal, yFinal)', self.finalPosition, 'actions', len(self.actionNames))
+        #if self.playerName == 'joueur_2':
+            #print ('update', self.playerName, 'moving', self.isMoving, '(x, y)', self.position, '(xFinal, yFinal)', self.finalPosition, 'actions', len(self.actionNames))
+
 
         # Motion
         if self.isMoving:
@@ -63,46 +65,64 @@ class Person():
             
             if len(self.actionNames) > 0:
                 actionName = self.actionNames[0]
-                print ('actionName', actionName)
+                #print ('actionName', actionName)
 
                 if actionName in ('W', 'G'):
                     self.collect(actionName)
                     self.actionNames.pop(0)
+                    print ("pop collect")
 
                 if actionName == 'B':
                     self.build(self)
-                    self.actionNames.pop(0)
+
+
 
                 if actionName == 'createS':
                     self.create("S")
                     self.actionNames.pop(0)
+        #print("update la position finale est", self.finalPosition, "la position actuelle est", self.position)
+        #print("update liste des batiments", self.gameObj.buildingsDict.keys())
 
 
     def build(self, nearWhat = None):
-        # We research the closest building
-        actualBuildings = self.get_closest_building(self.playerName)
-        x_actual = actualBuildings[0]
-        y_actual = actualBuildings[1]
-        #We find position for new building
-        diameter = 20
-        for i in range (1000):
-            caseX = random.randint(-diameter, diameter)
-            caseY = random.randint(-diameter, diameter)
-            x = x_actual + caseX
-            y = y_actual + caseY
-            # Vérifie si la case est dans le cercle et dans les limites [0, 120]
-            if 0 <= x <= 120 and 0 <= y <= 120:
-                if (x, y) not in self.gameObj.buildingsDict.keys() and (x, y) not in self.gameObj.ressourcesDict.keys():
-                    self.finalPosition = (x, y)
-                    break
-            
-        self.isMoving = True
-        print("JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJjj la position finale est", self.gameObj.buildingsDict.keys())
+ 
+        
+
+
         # We are on the position, we build
-        if self.isMoving == False:
+        if self.isFirstCycle == True:
+    
+            # We research the closest building
+            actualBuildings = self.get_closest_building(self.playerName)
+            x_actual = actualBuildings[0]
+            y_actual = actualBuildings[1]
+            #We find position for new building
+            diameter = 20
+            
+            for i in range (1000):
+                caseX = random.randint(-diameter, diameter)
+                caseY = random.randint(-diameter, diameter)
+                x = x_actual + caseX
+                y = y_actual + caseY
+                # Vérifie si la case est dans le cercle et dans les limites [0, 120]
+                if 0 <= x <= size and 0 <= y <= size:
+                    if (x, y) not in self.gameObj.buildingsDict.keys() and (x, y) not in self.gameObj.ressourcesDict.keys():
+                        self.finalPosition = (x, y)
+                        self.isFirstCycle = False
+                        self.isMoving = True
+
+                        break
+
+        if self.isFirstCycle == False and self.finalPosition == self.position:
+
             print ("position creation building", self.position)
             building = Building(self.gameObj, 'S', self.position, self.playerName)
             self.gameObj.buildingsDict[self.position] = building
+            self.actionNames.pop(0)
+            self.isFirstCycle = True
+            print ("pop build")
+
+
 
     def create(self, entityType):
         for buildingType in self.gameObj.buildingsDict.values():
@@ -144,20 +164,14 @@ class Person():
             
     def get_closest_ressource(self, ressourceName):
         (x, y) = self.position
-        print ("je suis en ", self.position)
         distanceSquaredMin = 9999999
         positionClosest = None
         for (xRessource, yRessource), ressource in self.gameObj.ressourcesDict.items():
-            print ("est ce que cette valeur marche?", (xRessource, yRessource), ressource.entityType)
             if ressource.entityType == ressourceName:
                 distanceSquared = (x - xRessource)**2 + (y - yRessource)**2
-                print ('distanceSquared', distanceSquared)
                 if distanceSquared < distanceSquaredMin:
-                    print ("je suis la nouvelle distance min", distanceSquared)
-                    print ('xRessource', xRessource, 'yRessource', yRessource)
                     distanceSquaredMin = distanceSquared
                     positionClosest = (xRessource, yRessource)
-        print ('positionClosest', positionClosest)
         for ressource in self.gameObj.ressourcesDict.values():
             if ressource.position == positionClosest:
                 print ('ressource', ressource.entityType, ressource.position)
