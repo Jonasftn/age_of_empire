@@ -14,7 +14,7 @@ from numpy.random import poisson
 import constants
 
 class Entity:
-    def __init__(self):
+    def __init__(self, gameObj):
 
 
         """
@@ -46,6 +46,7 @@ class Entity:
         self.isMoving = False
         self.epsilon = 0.001
         self.lastTime = pygame.time.get_ticks()
+        self.gameObj = gameObj
 
     def update():
 
@@ -83,7 +84,7 @@ class Entity:
     def collect(self, ressourceName):
 
         # We are on the ressource, we pickup
-        if self.position in ressourcesDict and ressource.quantity > 0:
+        if self.position in self.gameObj.ressourcesDict and ressource.quantity > 0:
             self.quantity = min(ressource.quantity, 20)
             ressource.quantity = max(0, ressource.quantity - 20)
 
@@ -92,8 +93,8 @@ class Entity:
             self.isMoving = True
 
         # We are in our building, we store the ressource and remove the action
-        elif self.position in buildingsDict and self.quantity > 0:
-            building = buildingsDict[self.position]
+        elif self.position in self.gameObj.buildingsDict and self.quantity > 0:
+            building = self.gameObj.buildingsDict[self.position]
             if building.playerName == self.playerName:
                 compteurs_joueurs[self.playerName]['ressources'][ressourceName] += self.quantity
                 self.quantity = 0
@@ -107,7 +108,7 @@ class Entity:
     def get_closest_ressource(self, ressourceName):
         (x, y) = self.position
         distanceSquaredMin = 99999
-        for (xRessource, yRessource), ressource in ressourcesDict:
+        for (xRessource, yRessource), ressource in self.gameObj.ressourcesDict:
             if ressource.entityType == ressourceName:
                 distanceSquared = (x - xRessource)**2 + (y - yRessource)**2
                 if distanceSquaredMin < distanceSquaredMin:
@@ -118,7 +119,7 @@ class Entity:
     def get_closest_building(self, playerName):
         (x, y) = self.position
         distanceSquaredMin = 99999
-        for (xBuilding, yBuilding), building in buildingsDict:
+        for (xBuilding, yBuilding), building in self.gameObj.buildingsDict:
             if building.playerName == playerName:
                 distanceSquared = (x - xBuilding)**2 + (y - yBuilding)**2
                 if distanceSquaredMin < distanceSquaredMin:
@@ -127,7 +128,8 @@ class Entity:
         return positionClosest
 
 class Person(Entity):
-    def __init__(self, entityType, position, playerName):
+    def __init__(self, gameObj, entityType, position, playerName):
+        self.gameObj = gameObj
         self.healthPoint = constants.units_dict[entityType]['hp']
         self.image = constants.units_dict[entityType]['image']
         self.position = position
@@ -138,20 +140,22 @@ class Person(Entity):
         self.quantity = 0
 
 class Ressource(Entity):
-    def __init__(self, entityType, position, playerName):
+    def __init__(self, gameObj, entityType, position):
+        self.gameObj = gameObj
         self.quantity = constants.ressources_dict[entityType]['quantite']
         self.image = constants.ressources_dict[entityType]['image']
         self.position = position
         self.entityType = entityType
-        self.playerName = playerName
 
 class Building(Entity):
-    def __init__(self, entityType, position, playerName):
+    def __init__(self, gameObj, entityType, position, playerName):
+        self.gameObj = gameObj
         self.healthPoint = constants.builds_dict[entityType]['hp']
         self.image = constants.builds_dict[entityType]['image']
         self.position = position
         self.entityType = entityType
         self.playerName = playerName
+        
         
 
 
