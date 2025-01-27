@@ -1,8 +1,7 @@
 import Game
 import entity
 """
-Jonasftn
-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
+
 """
 
 
