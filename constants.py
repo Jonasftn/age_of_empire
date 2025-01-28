@@ -80,7 +80,7 @@ units_dict = {
         'hp': 25,
         'temps_entrainement': 25,
         'attaque': 2,
-        'vitesse': 8.,
+        'vitesse': 1.5,
         'capacité' : 20
     },
     's': {  # Épéiste

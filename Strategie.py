@@ -24,6 +24,24 @@ class StratEconomique:
         if wood > 60:
             self.building.build('F')
 
+    def construire_barracks(self):
+        wood = compteurs_joueurs[self.joueur]['ressources']['W']
+
+        if wood > 175:
+            self.building.build('B')
+
+    def construire_stable(self):
+        wood = compteurs_joueurs[self.joueur]['ressources']['W']
+
+        if wood > 175:
+            self.building.build('S')
+
+    def construire_archery_range(self):
+        wood = compteurs_joueurs[self.joueur]['ressources']['W']
+
+        if wood > 175:
+            self.building.build('A')
+
     def construire_house(self):
         wood = compteurs_joueurs[self.joueur]['ressources']['W']
 
@@ -79,18 +97,35 @@ class StratEconomique:
         if i == 3:
             self.phase_3(joueur)
         """
+
     def phase_1(self, joueur):
         food = compteurs_joueurs[self.joueur]['ressources']['f']
-
+        villageois_count = 0
         timer = threading.Timer(60.0, self.optimiser_collecte_ressources, args=[joueur])
         timer.start()
 
-        while len(self.gameObj.persons) < 14:
+        for person in self.gameObj.persons:
+            if person.playerName == joueur and person.entityType == 'v':
+                # Incrémentation du compteur si la personne est un villageois
+                villageois_count += 1
+        while villageois_count < 14:
             if food >= 50:
-                #self.unit.creation_unite('v', self.joueur)
-                #self.construire_house()
+                self.unit.creation_unite('v', self.joueur)
+                villageois_count += 1
+                self.construire_house()
 
-        self.construire_farm()
+        while len([building for building in self.gameObj.buildingsDict.values() if building.entityType == 'F']) <= 3:
+            self.construire_farm()
+
+        while len([building for building in self.gameObj.buildingsDict.values() if building.entityType == 'B']) <= 1:
+            self.construire_barracks()
+
+        while len([building for building in self.gameObj.buildingsDict.values() if building.entityType == 'A']) <= 1:
+            self.construire_archery_range()
+
+        while len([building for building in self.gameObj.buildingsDict.values() if building.entityType == 'S']) <= 1:
+            self.construire_stable()
+
 
         if time.time() - self.start_time >= 300:  # 5 minutes = 300 secondes
             i = 2

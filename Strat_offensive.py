@@ -20,7 +20,7 @@ class StratOffensive:
         self.unit = self.gameObj.unit
 
     def getStatus(self, position, joueur, type_unit, id):
-        return (self.gameObj.tuiles[position]['unites'][joueur][type_unit][id]['Status'] == 'libre')
+        return self.gameObj.tuiles[position]['unites'][joueur][type_unit][id]['Status'] == 'libre'
 
     
     def bouge(self, joueur, type_unit, id_unite, pos_bois):

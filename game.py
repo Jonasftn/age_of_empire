@@ -6,6 +6,7 @@ from pygame.locals import *
 
 import Units
 from Strat_offensive import StratOffensive
+from Strategie import *
 from constants import *
 from TileMap import TileMap
 from Barre_ressource import Barre_ressources
@@ -95,7 +96,7 @@ class Game:
         for joueur in range(1, self.n + 1):  # Pour chaque joueur (par exemple, joueur_1, joueur_2)
             joueur_nom = f"joueur_{joueur}"
             #if joueur_nom != "joueur_1":
-            self.ia_joueurs[joueur_nom] = StratOffensive(self, joueur_nom)
+            self.ia_joueurs[joueur_nom] = StratEconomique(self, joueur_nom)
 
 
     def calculate_camera_limits(self):

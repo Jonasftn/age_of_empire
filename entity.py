@@ -31,7 +31,6 @@ class Person():
         self.isMoving = False
         self.lastTime = pygame.time.get_ticks()
         self.epsilon = 0.001
-        self.gameObj = gameObj
         self.isFirstCycle = True
 
     def update(self):
@@ -85,10 +84,6 @@ class Person():
 
 
     def build(self, nearWhat = None):
- 
-        
-
-
         # We are on the position, we build
         if self.isFirstCycle == True:
     
@@ -133,7 +128,7 @@ class Person():
                     self.gameObj.persons.append(Person(self.gameObj, constants.builds_dict[buildingType]['children'], building.position, self.playerName))
                     for differentRessource, cost in self.cost:
                         compteurs_joueurs[self.playerName]['ressources'][differentRessource] -= cost
-                
+
     def collect(self, ressourceName):
         # We go to the closest ressource
         self.finalPosition = self.get_closest_ressource(ressourceName)
