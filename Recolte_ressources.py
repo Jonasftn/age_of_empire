@@ -24,11 +24,10 @@ class Recolte_ressources:
                     self.position = position
                     print(position_actuelle)
                     break"""
-        
-        print("genre tu trouves")
+
         if position_unite is None:
             return None  # Unité non trouvée
-        print("oui batard")
+
         # Collecter toutes les positions des ressources 'G' qui sont disponibles (quantité > 0)
         positions_ressources = []
         for position, data in self.gameObj.tuiles.items():

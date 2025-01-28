@@ -687,8 +687,6 @@ class Game:
         pygame.display.set_caption("Carte et mini-carte")
 
         while running:
-            dt = FPSCLOCK.tick(600) / 1000
-
             events = pygame.event.get()
             for event in events:
 
