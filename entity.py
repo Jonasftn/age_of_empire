@@ -35,10 +35,8 @@ class Person():
         self.distanceCible = None
 
     def update(self):
-        
         # Motion
         if self.isMoving:
-
             (x, y) = self.position
             (xFinal, yFinal) = self.finalPosition
             
@@ -69,8 +67,8 @@ class Person():
                     self.actionNames.pop(0)
                     print ("pop collect")
 
-                if actionName == 'B':
-                    self.build(self)
+                if actionName in ('T', 'H', 'F', 'B', 'A', 'C', 'S'):
+                    self.build(actionName)
 
                 if actionName == 'attaquePerson':
                     self.attackPerson()
@@ -79,10 +77,7 @@ class Person():
         #print("update liste des batiments", self.gameObj.buildingsDict.keys())
 
 
-    def build(self, nearWhat = None):
-        buildingTypes = ['S']*1 + ['A']*1 + ['B']*1 + ['C']*1 + ['H']*5
-        buildingType = random.choice(buildingTypes)
-
+    def build(self, buildingType, nearWhat = None):
         if self.startTime == None:
 
             # Check the ressources
@@ -135,6 +130,8 @@ class Person():
                 self.startTime = None
                 self.actionNames.pop(0)
                 print ("pop build")
+
+
 
     def collect(self, ressourceName):
         current_time = time.time()

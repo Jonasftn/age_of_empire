@@ -6,6 +6,7 @@ from TileMap import TileMap
 from constants import *
 from Initialisation_Compteur import Initialisation_Compteur
 import random
+import threading
 
 
 class StratOffensive:
@@ -14,11 +15,34 @@ class StratOffensive:
         self.gameObj = gameObj
         self.resource_collector = Recolte_ressources(gameObj)
         self.unit = self.gameObj.unit
-    
-    def execute(self, joueur):
-        for person in self.gameObj.persons:
-            if person.playerName == joueur:
-                actionsPossibles = ["W"] * 10 + ["G"] * 10 + ["B"] * 3
+
+    def gestion_des_villageois(self, joueur):
+        villageois_du_joueur = [person for person in self.gameObj.persons if person.playerName == joueur]
+        nb_a_traiter = int(len(villageois_du_joueur) * 3 / 4)
+        villageois_a_traiter = villageois_du_joueur[:nb_a_traiter]
+        reste_des_villageois = villageois_du_joueur[nb_a_traiter:]
+        gold = compteurs_joueurs[joueur]['ressources']['G']
+        wood = compteurs_joueurs[joueur]['ressources']['W']
+
+        if gold < wood:
+            for person in villageois_a_traiter:
+                actionsPossibles = ["W"] * 3 + ["G"] * 5
                 if person.playerName == joueur and len(person.actionNames) == 0 and person.entityType == 'v':
                     newAction = random.choice(actionsPossibles)
                     person.actionNames.append(newAction)
+            for person in reste_des_villageois:
+                if person.playerName == joueur and len(person.actionNames) == 0 and person.entityType == 'v':
+                    person.actionNames.append('H')
+        if gold > wood:
+            for person in villageois_a_traiter:
+                actionsPossibles = ["W"] * 5 + ["G"] * 3
+                if person.playerName == joueur and len(person.actionNames) == 0 and person.entityType == 'v':
+                    newAction = random.choice(actionsPossibles)
+                    person.actionNames.append(newAction)
+            for person in reste_des_villageois:
+                if person.playerName == joueur and len(person.actionNames) == 0 and person.entityType == 'v':
+                    person.actionNames.append('K')
+
+    
+    def execute(self, joueur):
+        threading.Timer(60, self.gestion_des_villageois(joueur)).start()
