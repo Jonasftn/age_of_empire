@@ -50,15 +50,15 @@ class Initialisation_Compteur:
             compteurs_joueurs[f'joueur_{i}'] = {
             # Ressources
             'ressources': {
-                'W': 200,  # Bois
-                'f': 50,  # Nourriture
-                'G': 200,  # Or
+                'W': 0,  # Bois
+                'f': 0,  # Nourriture
+                'G': 0,  # Or
                 'U': 0,  # Unités générales (ou autre ressource spéciale)
                 'max_pop': 5
             },
             # Unités
             'unites': {
-                'v': 3,  # Villageois
+                'v': 0,  # Villageois
                 's': 0,  # Swordsman (épéiste)
                 'h': 0,  # Horseman (cavalier)
                 'a': 0  # Archer
@@ -108,28 +108,33 @@ class Initialisation_Compteur:
                     compteurs['batiments']['H'] = 0
                     compteurs['batiments']['A'] = 0
                     compteurs['batiments']['F'] = 0
-
-                elif unit == "Mean":
-                    compteurs['ressources']['W'] = 2000
-                    compteurs['ressources']['f'] = 2000
-                    compteurs['ressources']['G'] = 2000
-                    compteurs['unites']['v'] = 3
-                    compteurs['unites']['a'] = 0
-                    if isinstance(compteurs['unites'], dict):
-                        compteurs['ressources']['U'] = sum(compteurs['unites'].values())
-                        compteurs['batiments']['T'] = 1
-                    elif unit == "Marines":
-                        compteurs['ressources']['W'] = 20000
-                        compteurs['ressources']['f'] = 20000
-                        compteurs['ressources']['G'] = 20000
-                        compteurs['unites']['v'] = 15
-                        if isinstance(compteurs['unites'], dict):
-                            compteurs['ressources']['U'] = sum(compteurs['unites'].values())
-                            compteurs['batiments']['T'] = 3
-                            compteurs['batiments']['B'] = 2
-                            compteurs['batiments']['S'] = 2
-                            compteurs['batiments']['A'] = 2
-                            self.recalculate_max_population()
+            elif unit == "Mean":
+                compteurs['ressources']['W'] = 2000
+                compteurs['ressources']['f'] = 2000
+                compteurs['ressources']['G'] = 2000
+                compteurs['unites']['v'] = 3
+                compteurs['unites']['a'] = 0
+                if isinstance(compteurs['unites'], dict):
+                    compteurs['ressources']['U'] = sum(compteurs['unites'].values())
+                    compteurs['batiments']['T'] = 1
+                    compteurs['batiments']['B'] = 0
+                    compteurs['batiments']['S'] = 0
+                    compteurs['batiments']['K'] = 0
+                    compteurs['batiments']['H'] = 0
+                    compteurs['batiments']['A'] = 0
+                    compteurs['batiments']['F'] = 0
+            elif unit == "Marines":
+                compteurs['ressources']['W'] = 20000
+                compteurs['ressources']['f'] = 20000
+                compteurs['ressources']['G'] = 20000
+                compteurs['unites']['v'] = 15
+                if isinstance(compteurs['unites'], dict):
+                    compteurs['ressources']['U'] = sum(compteurs['unites'].values())
+                    compteurs['batiments']['T'] = 3
+                    compteurs['batiments']['B'] = 2
+                    compteurs['batiments']['S'] = 2
+                    compteurs['batiments']['A'] = 2
+                    self.recalculate_max_population()
 
     def draw_ressources(self):
         x_barre_base = 100  # Position de départ en X pour la première colonne

@@ -1,13 +1,9 @@
-
 from math import sqrt
 import math
 import pygame
-
 from TileMap import *
 import constants
 from Coordinates import *
-
-
 import random
 import time
 from Global_image_load import *
@@ -16,7 +12,6 @@ import constants
 
 
 class Person():
-    
     def __init__(self, gameObj, entityType, position, playerName):
         self.gameObj = gameObj
         self.healthPoint = constants.units_dict[entityType]['hp']
