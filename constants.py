@@ -88,7 +88,7 @@ units_dict = {
         'image': Tile("images/epeiste.png", 32, 32),
         'cout': {'G': 20, 'f': 50, 'W': 0},
         'hp': 40,
-        'temps_entrainement': 3,
+        'temps_entrainement': 20,
         'attaque': 4,
         'vitesse': 0.9
     },

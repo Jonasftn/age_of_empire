@@ -93,7 +93,7 @@ class Person():
 
                 # We find position for new building
                 if buildingType == 'C':
-                    diameter = 20
+                    diameter = 15
                 else:
                     diameter = 5
                 for i in range (1000):
