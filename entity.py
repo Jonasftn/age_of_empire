@@ -33,6 +33,9 @@ class Person():
         self.epsilon = 0.001
         self.gameObj = gameObj
         self.isFirstCycle = True
+        self.startTime = 0
+        self.isAttaquing = False
+        self.distanceCible = None
 
     def update(self):
         #if self.playerName == 'joueur_2':
@@ -60,6 +63,22 @@ class Person():
                 y = y + (yFinal - y)*stepDuration/durationToFinal
                 self.position = (x, y)
 
+        if self.isAttaquing:
+
+            (x, y) = self.position
+
+            currentTime = pygame.time.get_ticks()
+            elapsedTime = min(100, currentTime - self.lastTime)
+            self.lastTime = currentTime
+            durationToFinal = 1000
+            for person in self.gameObj.persons:
+                    if person.position == targetPosition:
+                        person.isAttaquing = True
+                        if person.healthPoint <= 0:
+                            self.gameObj.persons.remove(person)
+                            self.actionNames.pop(0)
+                            self.isMoving = False
+
         # Actions
         else:
             
@@ -80,6 +99,10 @@ class Person():
                 if actionName == 'createS':
                     self.create("S")
                     self.actionNames.pop(0)
+
+                if actionName == 'attaquePerson':
+                    self.attackPerson()
+                    print ("pop attaquePerson")
         #print("update la position finale est", self.finalPosition, "la position actuelle est", self.position)
         #print("update liste des batiments", self.gameObj.buildingsDict.keys())
 
@@ -178,8 +201,36 @@ class Person():
             if ressource.position == positionClosest:
                 print ('ressource', ressource.entityType, ressource.position)
                 return positionClosest
+            
+
+    def attackPerson(self):
+
+            self.distanceCible, targetPosition = self.get_closest_person()
+            self.distanceCible = sqrt(self.distanceCible)
+            if self.distanceCible != 99999:
+                self.finalPosition = targetPosition                    
+                self.isMoving = True
+                if self.distanceCible < 1:
+                    self.isAttaquing = True
+            else :
+                self.actionNames.pop(0)
+                self.isMoving = False
 
 
+    def get_closest_person(self):
+        (x, y) = self.position
+        positionClosest = (None, None)
+        distanceSquaredMin = 99999
+        for person in self.gameObj.persons:
+            if person.playerName != self.playerName:
+                xPerson, yPerson = person.position
+                distanceSquared = (x - xPerson)**2 + (y - yPerson)**2
+                if distanceSquared < distanceSquaredMin:
+                    distanceSquaredMin = distanceSquared
+                    positionClosest = (xPerson, yPerson)
+
+        return distanceSquaredMin, positionClosest
+        
     def get_closest_building(self, playerName):
         (x, y) = self.position
         distanceSquaredMin = 99999
@@ -189,7 +240,6 @@ class Person():
                 if distanceSquared < distanceSquaredMin:
                     distanceSquaredMin = distanceSquared
                     positionClosest = (xBuilding, yBuilding)
-        print ('positionClosest', positionClosest)
         return positionClosest
 
 class Ressource():
