@@ -110,11 +110,11 @@ class StratOffensive:
             print ('pos_bois', pos_bois)
             if pos_bois:
                 self.bouge(joueur, type_unit, id_unite, pos_bois)        
-        """
+        
         
         for building in self.gameObj.buildingsDict.values():
 
-            building.create()
+            building.create()"""
                 
         
         for person in self.gameObj.persons:

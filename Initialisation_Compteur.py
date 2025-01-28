@@ -52,7 +52,7 @@ class Initialisation_Compteur:
                     'f': 0,  # Nourriture
                     'G': 0,  # Or
                     'U': 0,  # Unités générales (ou autre ressource spéciale)
-                    'max_pop': 195
+                    'max_pop': 5
                 },
                 # Unités
                 'unites': {
@@ -77,49 +77,50 @@ class Initialisation_Compteur:
         for joueur, compteurs in compteurs_joueurs.items():
             if isinstance(compteurs['unites'], dict):
                 compteurs['ressources']['U'] = sum(compteurs['unites'].values())
+                
+    def recalculate_max_population(self):
+        for joueur, compteurs in compteurs_joueurs.items():
+            if isinstance(compteurs['batiments'], dict):
+                town_centers = compteurs['batiments'].get('T', 0)
+                houses = compteurs['batiments'].get('H', 0)
+                compteurs['ressources']['max_pop'] = (town_centers + houses) * 5
 
-    def initialize_resources(self, unit,n):
+    def initialize_resources(self, unit, n):
         self.create_count(n)
-        # Parcourt chaque joueur dans le dictionnaire pour initialiser les ressources
         for joueur, compteurs in compteurs_joueurs.items():
             if unit == "Lean":
-                compteurs['ressources']['W'] = 6000
-                compteurs['ressources']['f'] = 1150
-                compteurs['ressources']['G'] = 1150
-                compteurs['unites']['v'] = 2
-                compteurs['unites']['a'] = 0
-                if isinstance(compteurs['unites'], dict):
-                    compteurs['ressources']['U'] = sum(compteurs['unites'].values())
-                compteurs['batiments']['T'] = 1
-                compteurs['batiments']['B'] = 0
-                compteurs['batiments']['S'] = 0
-                compteurs['batiments']['K'] = 0
-                compteurs['batiments']['H'] = 0
-                compteurs['batiments']['A'] = 0
-                compteurs['batiments']['F'] = 1
+                compteurs['ressources']['W'] = 200  # 200 bois (W)
+                compteurs['ressources']['F'] = 50   # 50 nourriture (F)
+                compteurs['ressources']['G'] = 50   # 50 or (G)
+                compteurs['unites']['v'] = 3         # 3 Villageois
+                compteurs['batiments']['T'] = 1       # 1 Town Centre
+                compteurs['batiments']['H'] = 0       # Pas de maison
+                compteurs['batiments']['B'] = 0       # Pas de caserne
+                compteurs['batiments']['S'] = 0       # Pas de stable
+                compteurs['batiments']['A'] = 0       # Pas d'archery range
 
             elif unit == "Mean":
-                compteurs['ressources']['W'] = 2000
-                compteurs['ressources']['f'] = 2000
-                compteurs['ressources']['G'] = 2000
-                compteurs['unites']['v'] = 3
-                compteurs['unites']['a'] = 3
-                if isinstance(compteurs['unites'], dict):
-                    compteurs['ressources']['U'] = sum(compteurs['unites'].values())
-                compteurs['batiments']['T'] = 1
-            elif unit == "Marines":
-                compteurs['ressources']['W'] = 20000
-                compteurs['ressources']['f'] = 20000
-                compteurs['ressources']['G'] = 20000
-                compteurs['unites']['v'] = 15
-                if isinstance(compteurs['unites'], dict):
-                    compteurs['ressources']['U'] = sum(compteurs['unites'].values())
-                compteurs['batiments']['T'] = 3
-                compteurs['batiments']['B'] = 2
-                compteurs['batiments']['S'] = 2
-                compteurs['batiments']['A'] = 2
+                compteurs['ressources']['W'] = 2000  # 2000 bois (W)
+                compteurs['ressources']['F'] = 2000  # 2000 nourriture (F)
+                compteurs['ressources']['G'] = 2000  # 2000 or (G)
+                compteurs['unites']['v'] = 3          # 3 Villageois
+                compteurs['batiments']['T'] = 1        # 1 Town Centre
+                compteurs['batiments']['B'] = 0        # Pas de caserne
+                compteurs['batiments']['S'] = 0        # Pas de stable
+                compteurs['batiments']['A'] = 0        # Pas d'archery range
 
-        
+
+            elif unit == "Marines":
+                compteurs['ressources']['W'] = 20000  # 20000 bois (W)
+                compteurs['ressources']['F'] = 20000  # 20000 nourriture (F)
+                compteurs['ressources']['G'] = 20000  # 20000 or (G)
+                compteurs['unites']['v'] = 15         # 15 Villageois
+                compteurs['batiments']['T'] = 3        # 3 Town Centres
+                compteurs['batiments']['B'] = 2        # 2 Barracks
+                compteurs['batiments']['S'] = 2        # 2 Stables
+                compteurs['batiments']['A'] = 2        # 2 Archery Ranges
+
+        self.recalculate_max_population()
 
     def draw_ressources(self):
         x_barre_base = 100  # Position de départ en X pour la première colonne

@@ -31,11 +31,15 @@ class Person():
         self.isMoving = False
         self.lastTime = pygame.time.get_ticks()
         self.epsilon = 0.001
+        self.gameObj = gameObj
         self.isFirstCycle = True
+        self.startTime = None
+        self.buildingDuration = 1000
+        self.isAttaquing = False
+        self.distanceCible = None
 
     def update(self):
-        #if self.playerName == 'joueur_2':
-            #print ('update', self.playerName, 'moving', self.isMoving, '(x, y)', self.position, '(xFinal, yFinal)', self.finalPosition, 'actions', len(self.actionNames))
+        
         # Motion
         if self.isMoving:
 
@@ -51,13 +55,13 @@ class Person():
                 elapsedTime = min(100, currentTime - self.lastTime)
                 self.lastTime = currentTime
                 distance = math.sqrt((x - xFinal)**2 + (y - yFinal)**2)
-                durationToFinal = 1000.*distance/self.speed
+                durationToFinal = 1000.*distance/self.speed  # ms
                 stepDuration = min(elapsedTime, durationToFinal)
                 x = x + (xFinal - x)*stepDuration/durationToFinal
                 y = y + (yFinal - y)*stepDuration/durationToFinal
                 self.position = (x, y)
 
-        # Actions
+         # Actions
         else:
             
             if len(self.actionNames) > 0:
@@ -72,85 +76,240 @@ class Person():
                 if actionName == 'B':
                     self.build(self)
 
-
-
-                if actionName == 'createS':
-                    self.create("S")
-                    self.actionNames.pop(0)
+                if actionName == 'attaquePerson':
+                    self.attackPerson()
+                    print ("pop attaquePerson")
         #print("update la position finale est", self.finalPosition, "la position actuelle est", self.position)
         #print("update liste des batiments", self.gameObj.buildingsDict.keys())
 
 
-    def build(self, buildingtype, nearWhat = None):
-        # We are on the position, we build
-        if self.isFirstCycle:
-    
-            # We research the closest building
-            actualBuildings = self.get_closest_building(self.playerName)
-            x_actual = actualBuildings[0]
-            y_actual = actualBuildings[1]
-            #We find position for new building
-            diameter = 20
-            
-            for i in range (1000):
-                caseX = random.randint(-diameter, diameter)
-                caseY = random.randint(-diameter, diameter)
-                x = x_actual + caseX
-                y = y_actual + caseY
-                # Vérifie si la case est dans le cercle et dans les limites [0, 120]
-                if 0 <= x <= size and 0 <= y <= size:
-                    if (x, y) not in self.gameObj.buildingsDict.keys() and (x, y) not in self.gameObj.ressourcesDict.keys():
-                        self.finalPosition = (x, y)
-                        self.isFirstCycle = False
-                        self.isMoving = True
-                        break
+    def build(self, nearWhat = None):
 
-        if self.isFirstCycle == False and self.finalPosition == self.position:
-            print ("position creation building", self.position)
-            building = Building(self.gameObj, buildingtype, self.position, self.playerName)
+        buildingTypes = ['S']*5 + ['A']*5 + ['B']*5 + ['C']*1 + ['H']*1 + ['T']*1
+        buildingType = random.choice(buildingTypes)
+
+        if self.startTime == None:
+
+            # Check the ressources
+            isEnough = True
+            for ressourceName, cost in builds_dict[buildingType]['cout'].items():
+                nAvailables = compteurs_joueurs[self.playerName]['ressources'][ressourceName]
+                print ('buildingType', buildingType, 'ressourceName', ressourceName, 'cost', cost, 'nAvailables', nAvailables)
+                
+                if nAvailables < cost:
+                    isEnough = False
+                    self.actionNames.pop(0)
+                    return
+                    
+            # Take the money and start the building
+            print ('isEnough', isEnough)
+            if isEnough == True:
+                
+                for ressourceName, cost in builds_dict[buildingType]['cout'].items():
+                    compteurs_joueurs[self.playerName]['ressources'][ressourceName] -= cost
+
+                # We research the closest building
+                actualBuildings = self.get_closest_building(self.playerName)
+                x_actual = actualBuildings[0]
+                y_actual = actualBuildings[1]
+                
+                # We find position for new building
+                diameter = 20
+                for i in range (1000):
+                    caseX = random.randint(-diameter, diameter)
+                    caseY = random.randint(-diameter, diameter)
+                    x = x_actual + caseX
+                    y = y_actual + caseY
+                    # Vérifie si la case est dans le cercle et dans les limites 
+                    if 0 <= x <= size and 0 <= y <= size:
+                        if (x, y) not in self.gameObj.buildingsDict.keys() and (x, y) not in self.gameObj.ressourcesDict.keys():
+                            self.finalPosition = (x, y)
+                            self.isFirstCycle = False
+                            self.startTime = pygame.time.get_ticks()
+                            self.isMoving = True
+                            break
+        if self.position == self.finalPosition:
+            building = Building(self.gameObj, 'S', self.position, self.playerName)
             self.gameObj.buildingsDict[self.position] = building
-            self.actionNames.pop(0)
-            self.isFirstCycle = True
-            print ("pop build")
+            
+            # Update population cap when adding Town Center or House
+            if building.entityType == 'T' or building.entityType == 'H':
+                self.update_max_population(self.playerName)
+                
+        
+        if self.startTime != None and self.finalPosition == self.position:
 
-    def create(self, buildingType):
+            # If building is terminated, show it
+            self.buildingDuration = constants.builds_dict[buildingType]['build_time']*1000
+            
+            if pygame.time.get_ticks() > self.startTime + self.buildingDuration:
+
+                newBuilding = Building(self.gameObj, buildingType, self.position, self.playerName)
+                self.gameObj.buildingsDict[self.position] = newBuilding
+                compteurs_joueurs[self.playerName]['batiments'][buildingType] += 1
+                self.startTime = None
+                self.actionNames.pop(0)
+                print ("pop build")
+
+    def update_max_population(self, playerName):
+        """Update maximum population based on number of Town Centers and Houses"""
+        town_centers = 0
+        houses = 0
+        
+        # Count all Town Centers and Houses belonging to the player
         for building in self.gameObj.buildingsDict.values():
-            if building.entityType == buildingType:
-                if 'children' in constants.builds_dict[buildingType].keys():
-                    self.gameObj.persons.append(Person(self.gameObj, constants.builds_dict[buildingType]['children'], building.position, self.playerName))
-                    for differentRessource, cost in self.cost:
-                        compteurs_joueurs[self.playerName]['ressources'][differentRessource] -= cost
+            if building.playerName == playerName:
+                if building.entityType == 'T':
+                    town_centers += 1
+                elif building.entityType == 'H':
+                    houses += 1
+        
+        # Update the max population (5 population per building)
+        compteurs_joueurs[playerName]['ressources']['max_pop'] = (town_centers + houses) * 5
 
     def collect(self, ressourceName):
-        # We go to the closest ressource
-        self.finalPosition = self.get_closest_ressource(ressourceName)
-        self.isMoving = True
+        current_time = time.time()
+        
+        if not hasattr(self, 'harvest_start_time'):
+            self.harvest_start_time = None
+            self.is_harvesting = False
 
-        # We are on the ressource, we pickup
-        if self.position in self.gameObj.ressourcesDict:
-            ressource = self.gameObj.ressourcesDict[self.position]
-            if ressource.quantity > 0:
-                self.quantity = min(ressource.quantity, 20)
-                ressource.quantity = max(0, ressource.quantity - 20)
-                if ressource.quantity == 0: # We remove the ressource
-                    del self.gameObj.ressourcesDict[self.position]
+        # Définition des quantités maximales par type de ressource
+        RESOURCE_LIMITS = {
+            'W': 100,  # Wood: 100 par arbre (5 voyages de 20)
+            'F': 300,  # Food: 300 par ferme (15 voyages de 20)
+            'G': 800   # Gold: 800 par tile (40 voyages de 20)
+        }
 
-            # We go to our closest building
-            self.finalPosition = self.get_closest_building(self.playerName)
+        if not self.is_harvesting:
+            self.finalPosition = self.get_closest_ressource(ressourceName)
             self.isMoving = True
 
-        # We are in our building, we store the ressource and remove the action
+        if self.position in self.gameObj.ressourcesDict:
+            ressource = self.gameObj.ressourcesDict[self.position]
+            
+            if not self.is_harvesting:
+                self.harvest_start_time = current_time
+                self.is_harvesting = True
+                
+            if self.is_harvesting and (current_time - self.harvest_start_time) >= 48:
+                if ressource.quantity > 0:
+                    self.quantity = min(ressource.quantity, 20)
+                    ressource.quantity = max(0, ressource.quantity - 20)
+                    
+                    # Vérification si la ressource est épuisée
+                    if ressource.quantity == 0:
+                        # On vérifie si c'était la quantité initiale de cette ressource
+                        initial_quantity = RESOURCE_LIMITS.get(ressourceName, 0)
+                        if ressource.total_harvested + 20 >= initial_quantity:
+                            # La ressource est complètement épuisée, on la supprime de la map
+                            del self.gameObj.ressourcesDict[self.position]
+                            # On pourrait aussi mettre à jour la visualisation de la map ici
+                            if hasattr(self.gameObj, 'update_map_visualization'):
+                                self.gameObj.update_map_visualization(self.position)
+                        else:
+                            # On met à jour le total récolté
+                            ressource.total_harvested += 20
+                    
+                    # Réinitialisation des variables de récolte
+                    self.harvest_start_time = None
+                    self.is_harvesting = False
+                    
+                    # Direction le bâtiment le plus proche
+                    self.finalPosition = self.get_closest_building(self.playerName)
+                    self.isMoving = True
+
         elif self.position in self.gameObj.buildingsDict and self.quantity > 0:
             building = self.gameObj.buildingsDict[self.position]
             if building.playerName == self.playerName:
                 compteurs_joueurs[self.playerName]['ressources'][ressourceName] += self.quantity
                 self.quantity = 0
+                # Recherche d'une nouvelle ressource
+                self.finalPosition = self.get_closest_ressource(ressourceName)
+                self.isMoving = True
 
-        # We search another ressource
-        else :
-            self.finalPosition = self.get_closest_ressource(ressourceName)
+    def attackPerson(self):
+
+        self.distanceCible, self.victim = self.get_closest_person()
+        if self.victim != None:
+            self.finalPosition = self.victim.position                    
             self.isMoving = True
+            if self.distanceCible < 1:
+                self.isAttaquing = True
+        else :
+            self.actionNames.pop(0)
+            self.isMoving = False
+            self.isAttaquing = False
+
+
+        if self.isAttaquing:
+
+            currentTime = pygame.time.get_ticks()
+            elapsedTime = min(100, currentTime - self.lastTime)
+            self.lastTime = currentTime
+            victimType = self.victim.entityType
+            speed = constants.units_dict[self.entityType]['attaque']
             
+            self.victim.healthPoint -= elapsedTime*speed/1000.
+            print('victim.healthPoint', self.victim.healthPoint)
+            if self.victim.healthPoint <= 0.:
+                for iPerson, person in enumerate(self.gameObj.persons):
+                    if person.position == self.victim.position:
+                        del self.gameObj.persons[iPerson]
+                        compteurs_joueurs[self.playerName]['unites'][victimType] -= 1
+                        if len(self.actionNames) > 0:
+                            self.actionNames.pop(0)
+                        #self.isMoving = False
+                        self.isAttaquing = False
+
+    def attackBuilding(self):
+            self.distanceCible, self.victim = self.get_closest_building_opponent()
+            if self.victim != None:
+                self.finalPosition = self.victim.position                    
+                self.isMoving = True
+                if self.distanceCible < 1:
+                    self.isAttaquing = True
+            else :
+                self.actionNames.pop(0)
+                self.isMoving = False
+                self.isAttaquing = False
+
+
+            if self.isAttaquing:
+
+                currentTime = pygame.time.get_ticks()
+                elapsedTime = min(100, currentTime - self.lastTime)
+                self.lastTime = currentTime
+                victimType = self.victim.entityType
+                speed = constants.units_dict[self.entityType]['attaque']
+                keys_to_remove = []
+                self.victim.healthPoint -= elapsedTime*speed/1000.
+                print('victim.healthPoint', self.victim.healthPoint)
+                if self.victim.healthPoint <= 0.:
+                    for coordinatesBuilding, building in self.gameObj.buildingsDict.items():
+                        if building.position == self.victim.position:
+                            keys_to_remove.append(coordinatesBuilding)
+                            compteurs_joueurs[self.playerName]['batiments'][victimType] -= 1
+                            if len(self.actionNames) > 0:
+                                self.actionNames.pop(0)
+                            #self.isMoving = False
+                            self.isAttaquing = False
+                    for key in keys_to_remove:
+                        self.gameObj.buildingsDict.pop(key)
+
+    def get_closest_building_opponent(self):
+        (x, y) = self.position
+        buildingClosest = None
+        distanceSquaredMin = 30.*size*size
+        for building in self.gameObj.buildingsDict.values():
+            if building.playerName != self.playerName:
+                xBuilding, yBuilding = building.position
+                distanceSquared = (x - xBuilding)**2 + (y - yBuilding)**2
+                if distanceSquared < distanceSquaredMin:
+                    distanceSquaredMin = distanceSquared
+                    buildingClosest = building
+        return math.sqrt(distanceSquaredMin), buildingClosest
+         
     def get_closest_ressource(self, ressourceName):
         (x, y) = self.position
         distanceSquaredMin = 9999999
@@ -165,8 +324,23 @@ class Person():
             if ressource.position == positionClosest:
                 print ('ressource', ressource.entityType, ressource.position)
                 return positionClosest
+            
 
 
+    def get_closest_person(self):
+        (x, y) = self.position
+        personClosest = None
+        distanceSquaredMin = 30.*size*size
+        for person in self.gameObj.persons:
+            if person.playerName != self.playerName:
+                xPerson, yPerson = person.position
+                distanceSquared = (x - xPerson)**2 + (y - yPerson)**2
+                if distanceSquared < distanceSquaredMin:
+                    distanceSquaredMin = distanceSquared
+                    personClosest = person
+
+        return math.sqrt(distanceSquaredMin), personClosest
+        
     def get_closest_building(self, playerName):
         (x, y) = self.position
         distanceSquaredMin = 99999
@@ -176,7 +350,6 @@ class Person():
                 if distanceSquared < distanceSquaredMin:
                     distanceSquaredMin = distanceSquared
                     positionClosest = (xBuilding, yBuilding)
-        print ('positionClosest', positionClosest)
         return positionClosest
 
 class Ressource():
@@ -195,15 +368,35 @@ class Building():
         self.position = position
         self.entityType = buildingType
         self.playerName = playerName
+        self.startTime = None
+        self.trainingDuration = 1000
 
-
-    def create(self):
+    def create_person(self):
 
         if 'children' in constants.builds_dict[self.entityType].keys():
-            childrenType = constants.builds_dict[self.entityType]['children']
-            self.gameObj.persons.append(Person(self.gameObj, childrenType, self.position, self.playerName))
-            for differentRessource, cost in units_dict[childrenType]['cout'].items():
-                compteurs_joueurs[self.playerName]['ressources'][differentRessource] -= cost
+
+            # Take the money and start the training
+            if self.startTime == None:
+                self.personType = constants.builds_dict[self.entityType]['children']
+                self.trainingDuration = constants.units_dict[self.personType]['temps_entrainement']*1000
+                isEnough = True
+                for ressourceName, cost in units_dict[self.personType]['cout'].items():
+                    nAvailables = compteurs_joueurs[self.playerName]['ressources'][ressourceName]
+                    if nAvailables < cost:
+                        return
+
+                for ressourceName, cost in units_dict[self.personType]['cout'].items():
+                    compteurs_joueurs[self.playerName]['ressources'][ressourceName] -= cost
+                self.startTime = pygame.time.get_ticks()
+
+            # Training is done, create the person
+            else:
+                if pygame.time.get_ticks() > self.startTime + self.trainingDuration:
+                    newPerson = Person(self.gameObj, self.personType, self.position, self.playerName)
+                    self.gameObj.persons.append(newPerson)
+                    compteurs_joueurs[self.playerName]['unites'][self.personType] += 1
+                    self.startTime = None
+            
 
 
     
