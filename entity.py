@@ -35,6 +35,8 @@ class Person():
         self.isFirstCycle = True
         self.startTime = None
         self.buildingDuration = 1000
+        self.isAttaquing = False
+        self.distanceCible = None
 
     def update(self):
         
@@ -53,13 +55,13 @@ class Person():
                 elapsedTime = min(100, currentTime - self.lastTime)
                 self.lastTime = currentTime
                 distance = math.sqrt((x - xFinal)**2 + (y - yFinal)**2)
-                durationToFinal = 1000.*distance/self.speed
+                durationToFinal = 1000.*distance/self.speed  # ms
                 stepDuration = min(elapsedTime, durationToFinal)
                 x = x + (xFinal - x)*stepDuration/durationToFinal
                 y = y + (yFinal - y)*stepDuration/durationToFinal
                 self.position = (x, y)
 
-        # Actions
+         # Actions
         else:
             
             if len(self.actionNames) > 0:
@@ -73,6 +75,12 @@ class Person():
 
                 if actionName == 'B':
                     self.build(self)
+
+                if actionName == 'attaquePerson':
+                    self.attackPerson()
+                    print ("pop attaquePerson")
+        #print("update la position finale est", self.finalPosition, "la position actuelle est", self.position)
+        #print("update liste des batiments", self.gameObj.buildingsDict.keys())
 
 
     def build(self, nearWhat = None):
@@ -164,6 +172,40 @@ class Person():
         else :
             self.finalPosition = self.get_closest_ressource(ressourceName)
             self.isMoving = True
+
+    def attackPerson(self):
+
+        self.distanceCible, self.victim = self.get_closest_person()
+        if self.victim != None:
+            self.finalPosition = self.victim.position                    
+            self.isMoving = True
+            if self.distanceCible < 1:
+                self.isAttaquing = True
+        else :
+            self.actionNames.pop(0)
+            self.isMoving = False
+            self.isAttaquing = False
+
+
+        if self.isAttaquing:
+
+            currentTime = pygame.time.get_ticks()
+            elapsedTime = min(100, currentTime - self.lastTime)
+            self.lastTime = currentTime
+            victimType = self.victim.entityType
+            speed = constants.units_dict[victimType]['attaque']
+            
+            self.victim.healthPoint -= elapsedTime*speed/1000.
+            print('victim.healthPoint', self.victim.healthPoint)
+            if self.victim.healthPoint <= 0.:
+                for iPerson, person in enumerate(self.gameObj.persons):
+                    if person.position == self.victim.position:
+                        del self.gameObj.persons[iPerson]
+                        compteurs_joueurs[self.playerName]['unites'][victimType] -= 1
+                        if len(self.actionNames) > 0:
+                            self.actionNames.pop(0)
+                        #self.isMoving = False
+                        self.isAttaquing = False
             
     def get_closest_ressource(self, ressourceName):
         (x, y) = self.position
@@ -180,7 +222,20 @@ class Person():
                 print ('ressource', ressource.entityType, ressource.position)
                 return positionClosest
 
+    def get_closest_person(self):
+        (x, y) = self.position
+        personClosest = None
+        distanceSquaredMin = 30.*size*size
+        for person in self.gameObj.persons:
+            if person.playerName != self.playerName:
+                xPerson, yPerson = person.position
+                distanceSquared = (x - xPerson)**2 + (y - yPerson)**2
+                if distanceSquared < distanceSquaredMin:
+                    distanceSquaredMin = distanceSquared
+                    personClosest = person
 
+        return math.sqrt(distanceSquaredMin), personClosest
+        
     def get_closest_building(self, playerName):
         (x, y) = self.position
         distanceSquaredMin = 99999
@@ -190,7 +245,6 @@ class Person():
                 if distanceSquared < distanceSquaredMin:
                     distanceSquaredMin = distanceSquared
                     positionClosest = (xBuilding, yBuilding)
-        print ('positionClosest', positionClosest)
         return positionClosest
 
 class Ressource():
