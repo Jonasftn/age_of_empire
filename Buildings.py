@@ -37,14 +37,29 @@ class Buildings:
         return iso_x, iso_y
 
     def placer_joueurs_cercle(self, players, rayon, center_x, center_y):
-        """Calcule les positions cartésiennes pour `n` joueurs répartis en cercle autour du centre."""
+        """Calculate cartesian positions for n players distributed in a circle around center."""
         positions = []
-        angle_increment = 360 / players  # Divise le cercle en n parties égales
+        angle_increment = 360 / players
+        
+        # Slightly increased radius - from size//3 to size//2.5
+        adjusted_radius = int(size // 2.5)  # This will place them a bit further apart
+        
+        # Center should be at map center
+        center_x = size // 2
+        center_y = size // 2
+
         for i in range(players):
             angle = angle_increment * i
-            cart_x = int(center_x + rayon * math.cos(math.radians(angle)))  # Calcul de la position X
-            cart_y = int(center_y + rayon * math.sin(math.radians(angle)))  # Calcul de la position Y
-            positions.append((cart_x-2, cart_y-2))  # Ajouter les coordonnées à la liste
+            # Calculate position
+            cart_x = int(center_x + adjusted_radius * math.cos(math.radians(angle)))
+            cart_y = int(center_y + adjusted_radius * math.sin(math.radians(angle)))
+            
+            # Ensure positions stay within map bounds, accounting for TC size (4x4)
+            cart_x = max(6, min(cart_x, size - 6))  
+            cart_y = max(6, min(cart_y, size - 6))
+            
+            positions.append((cart_x, cart_y))
+
         return positions
 
     # pour del : del self.gameObj.tuiles[(60, 110)]['unites']['v'][0]
@@ -72,42 +87,58 @@ class Buildings:
 
         return coord_libres
 
-    def trouver_coordonnees_motif(self, x, y, players, rayon, center_x, center_y):
-        list_position_joueur=self.placer_joueurs_cercle(players,rayon,center_x, center_y)
-        for (x,y) in list_position_joueur:
-            if (x, y) not in self.gameObj.buildingsDict.keys() and (x, y) not in self.gameObj.ressourcesDict.keys():
-                return (x, y)
-        """"
-        start_x = x + offset_x * taille
-        start_y = y + offset_y * taille
+    def trouver_coordonnees_motif(self, x, y, taille, size, size_half, offset_x, offset_y):
+        """Find valid building position within radius of existing buildings"""
+        
+        # Get all existing buildings for this player
+        player_buildings = []
+        for pos, building in self.gameObj.buildingsDict.items():
+            if building.playerName == self.playerName:
+                player_buildings.append(pos)
+        
+        if not player_buildings:
+            # If no buildings exist, use town center position
+            reference_point = (x, y)
+        else:
+            # Use closest existing building as reference
+            closest_building = min(player_buildings, 
+                                 key=lambda p: (p[0]-x)**2 + (p[1]-y)**2)
+            reference_point = closest_building
 
-        # Vérification si les coordonnées sont dans les limites de la grille
-        if 0 <= start_x < max_x and 0 <= start_y < max_y:
-            # Vérification de l'espace libre pour le bâtiment
-            espace_libre = True
-            for dx in range(taille):
-                for dy in range(taille):
-                    tuile_position = (start_x + dx, start_y + dy)
-                    if tuile_position in self.gameObj.tuiles :  # Vérifie si la position est déjà occupée
-                        #print(f"Tuile occupée détectée : {tuile_position}")
-                        espace_libre = False
-                        break
-                if not espace_libre:
-                    break
+        # Search in increasing radius around reference point
+        radius = 5  # Start with small radius
+        max_radius = 20  # Maximum search radius
+        
+        while radius <= max_radius:
+            # Try positions in current radius
+            for dx in range(-radius, radius+1):
+                for dy in range(-radius, radius+1):
+                    test_x = reference_point[0] + dx
+                    test_y = reference_point[1] + dy
+                    
+                    # Check if position is valid
+                    if (0 <= test_x <= size-taille and 
+                        0 <= test_y <= size-taille and
+                        self.is_position_valid(test_x, test_y, taille)):
+                        return test_x, test_y
+            
+            radius += 5  # Increase search radius
+            
+        return None
 
-            # Si l'espace est libre, retourne les coordonnées
-            if espace_libre:
-                # Marquer toutes les tuiles comme occupées
-                for dx in range(taille):
-                    for dy in range(taille):
-                        tuile_position = (start_x + dx, start_y + dy)
-                        self.gameObj.tuiles[tuile_position] = "occupé"  # Marquer la tuile comme occupée
-                #print(start_x, start_y)
-                return start_x, start_y
-
-        return None"""
-
-
+    def is_position_valid(self, x, y, taille):
+        """Check if position is valid for building placement"""
+        # Check each tile needed for the building
+        for dx in range(taille):
+            for dy in range(taille):
+                pos = (x + dx, y + dy)
+                # Check if position is occupied
+                if (pos in self.gameObj.buildingsDict or 
+                    pos in self.gameObj.ressourcesDict or
+                    'batiments' in self.gameObj.tuiles.get(pos, {}) or
+                    'unites' in self.gameObj.tuiles.get(pos, {})):
+                    return False
+        return True
 
     def prochain_id_batiment(self, joueur, batiment):
         """
