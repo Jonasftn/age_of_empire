@@ -31,25 +31,6 @@
                 .active {
                     background-color: #5d85ab;
                 }
-                .collapsible {
-                    background-color: #777;
-                    color: white;
-                    cursor: pointer;
-                    padding: 10px;
-                    width: 100%;
-                    border: none;
-                    text-align: left;
-                    outline: none;
-                    font-size: 15px;
-                    margin-bottom: 5px;
-                }
-                .content {
-                    padding: 0 18px;
-                    display: none;
-                    overflow: hidden;
-                    background-color: #f1f1f1;
-                    margin-bottom: 10px;
-                }
                 table {
                     border-collapse: collapse;
                     width: 100%;
@@ -70,42 +51,27 @@
                 function showTab(player) {
                     var tabs = document.querySelectorAll('.tab');
                     var buttons = document.querySelectorAll('.tab-button');
-                    
+
                     // Masquer tous les onglets
                     tabs.forEach(tab => tab.style.display = 'none');
                     buttons.forEach(button => button.classList.remove('active'));
-        
+
                     // Afficher l'onglet du joueur sélectionné
                     document.getElementById(player).style.display = 'block';
                     document.querySelector('[data-player="' + player + '"]').classList.add('active');
                 }
-        
+
                 document.addEventListener("DOMContentLoaded", function() {
-                    // Par défaut, on affiche le premier joueur
                     var firstPlayer = document.querySelector('.tab-button');
                     if (firstPlayer) {
                         showTab(firstPlayer.getAttribute('data-player'));
                     }
-                    
-                    const collapsibles = document.querySelectorAll(".collapsible");
-                    collapsibles.forEach(button => {
-                        button.addEventListener("click", () => {
-                            button.classList.toggle("active");
-                            const content = button.nextElementSibling;
-                            if (content.style.display === "block") {
-                                content.style.display = "none";
-                            } else {
-                                content.style.display = "block";
-                            }
-                        });
-                    });
                 });
             </script>
         </head>
         <body>
             <h1>Game Snapshot</h1>
-            <div>
-        
+        <button class="tab-button" data-player="joueur_1" onclick="showTab('joueur_1')">Joueur joueur_1</button><button class="tab-button" data-player="joueur_2" onclick="showTab('joueur_2')">Joueur joueur_2</button><div id="joueur_1" class="tab"><h2>Unité du joueur joueur_1</h2><table><tr><th>Type d'unité</th><th>HP</th><th>Coordonnées</th></tr><tr><td>Villageois</td><td>25</td><td>(29.917231337110884, 58.41384331444559)</td></tr><tr><td>Villageois</td><td>25</td><td>(35.633773481115064, 61.89298121510793)</td></tr></table><h2>Bâtiments du joueur joueur_1</h2><table><tr><th>Type</th><th>HP</th><th>Coordonnées</th></tr><tr><td>Town Center</td><td>10</td><td>(1, 41)</td></tr></table></div><div id="joueur_2" class="tab"><h2>Unité du joueur joueur_2</h2><table><tr><th>Type d'unité</th><th>HP</th><th>Coordonnées</th></tr><tr><td>Villageois</td><td>25</td><td>(28.748557829115036, -2.2687482215045716)</td></tr><tr><td>Villageois</td><td>25</td><td>(23.407058823529407, -3.388235294117648)</td></tr></table><h2>Bâtiments du joueur joueur_2</h2><table><tr><th>Type</th><th>HP</th><th>Coordonnées</th></tr><tr><td>Town Center</td><td>10</td><td>(52, 29)</td></tr></table></div>
             </body>
             </html>
-            
+        

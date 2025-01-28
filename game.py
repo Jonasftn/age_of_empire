@@ -677,7 +677,7 @@ class Game:
                 self.unit.decrementer_hp_unite()
 
             elif key == 9:  # Code ASCII pour Tab
-                file_path = self.page_html.generate_html(self.tuiles)
+                file_path = self.page_html.generate_html(self.persons, self.ressourcesDict, self.buildingsDict)
                 browser = webbrowser.get("C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe %s")
                 browser.open(f"file:///{file_path}")
 
@@ -863,7 +863,7 @@ class Game:
                             compteurs_joueurs.update(nouveaux_compteurs)
 
                 if event.type == KEYDOWN and event.key == K_TAB:
-                    file_path = self.page_html.generate_html(self.tuiles)
+                    file_path = self.page_html.generate_html(self.persons, self.ressourcesDict, self.buildingsDict)
                     browser = webbrowser.get("C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe %s")
                     browser.open(f"file:///{file_path}")
 
