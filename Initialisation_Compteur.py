@@ -172,7 +172,7 @@ class Initialisation_Compteur:
                         color = PLAYER_COLORS.get(joueur, (255, 255, 255))
                         barre.draw_title(DISPLAYSURF, joueur, x_barre, y_barre, color)
 
-                        # Affiche les unités (f2_active)
+            # Affiche les unités (f2_active)
             if self.f2_active:
                 for barre_unit in self.barres:
                     barre_unit.barre_units(DISPLAYSURF, x_barre, y_barre + barre_height)

@@ -39,11 +39,9 @@ class Person():
         if self.isMoving:
             (x, y) = self.position
             (xFinal, yFinal) = self.finalPosition
-            
             if abs(x - xFinal) < self.epsilon and abs(y - yFinal) < self.epsilon:
                 self.position = self.finalPosition
                 self.isMoving = False
-                
             else:
                 currentTime = pygame.time.get_ticks()
                 elapsedTime = min(100, currentTime - self.lastTime)
@@ -57,19 +55,14 @@ class Person():
 
          # Actions
         else:
-            
             if len(self.actionNames) > 0:
                 actionName = self.actionNames[0]
                 #print ('actionName', actionName)
-
                 if actionName in ('W', 'G'):
                     self.collect(actionName)
                     self.actionNames.pop(0)
-                    print ("pop collect")
-
                 if actionName in ('T', 'H', 'F', 'B', 'A', 'C', 'S'):
                     self.build(actionName)
-
                 if actionName == 'attaquePerson':
                     self.attackPerson()
                     print ("pop attaquePerson")
@@ -79,20 +72,17 @@ class Person():
 
     def build(self, buildingType, nearWhat = None):
         if self.startTime == None:
-
             # Check the ressources
             isEnough = True
             for ressourceName, cost in builds_dict[buildingType]['cout'].items():
                 nAvailables = compteurs_joueurs[self.playerName]['ressources'][ressourceName]
                 print ('buildingType', buildingType, 'ressourceName', ressourceName, 'cost', cost, 'nAvailables', nAvailables)
-                
                 if nAvailables < cost:
                     isEnough = False
                     self.actionNames.pop(0)
                     return
 
             if isEnough == True:
-                
                 for ressourceName, cost in builds_dict[buildingType]['cout'].items():
                     compteurs_joueurs[self.playerName]['ressources'][ressourceName] -= cost
 
@@ -100,9 +90,12 @@ class Person():
                 actualBuildings = self.get_closest_building(self.playerName)
                 x_actual = actualBuildings[0]
                 y_actual = actualBuildings[1]
-                
+
                 # We find position for new building
-                diameter = 5
+                if buildingType is 'C':
+                    diameter = 20
+                else:
+                    diameter = 5
                 for i in range (1000):
                     caseX = random.randint(-diameter, diameter)
                     caseY = random.randint(-diameter, diameter)
@@ -118,51 +111,39 @@ class Person():
                             break
 
         if self.startTime is not None and self.finalPosition == self.position:
-
             # If building is terminated, show it
             self.buildingDuration = constants.builds_dict[buildingType]['build_time']*1000
-            
             if pygame.time.get_ticks() > self.startTime + self.buildingDuration:
-
                 newBuilding = Building(self.gameObj, buildingType, self.position, self.playerName)
                 self.gameObj.buildingsDict[self.position] = newBuilding
                 compteurs_joueurs[self.playerName]['batiments'][buildingType] += 1
                 self.startTime = None
                 self.actionNames.pop(0)
-                print ("pop build")
-
 
 
     def collect(self, ressourceName):
         current_time = time.time()
-
         if not hasattr(self, 'harvest_start_time'):
             self.harvest_start_time = None
             self.is_harvesting = False
-
         # Définition des quantités maximales par type de ressource
         RESOURCE_LIMITS = {
             'W': 100,  # Wood: 100 par arbre (5 voyages de 20)
             'F': 300,  # Food: 300 par ferme (15 voyages de 20)
             'G': 800  # Gold: 800 par tile (40 voyages de 20)
         }
-
         if not self.is_harvesting:
             self.finalPosition = self.get_closest_ressource(ressourceName)
             self.isMoving = True
-
         if self.position in self.gameObj.ressourcesDict:
             ressource = self.gameObj.ressourcesDict[self.position]
-
             if not self.is_harvesting:
                 self.harvest_start_time = current_time
                 self.is_harvesting = True
-
             if self.is_harvesting and (current_time - self.harvest_start_time) >= 3:
                 if ressource.quantity > 0:
                     self.quantity = min(ressource.quantity, 20)
                     ressource.quantity = max(0, ressource.quantity - 20)
-
                     # Vérification si la ressource est épuisée
                     if ressource.quantity == 0:
                         # On vérifie si c'était la quantité initiale de cette ressource
@@ -176,15 +157,12 @@ class Person():
                         else:
                             # On met à jour le total récolté
                             ressource.total_harvested += 20
-
                     # Réinitialisation des variables de récolte
                     self.harvest_start_time = None
                     self.is_harvesting = False
-
                     # Direction le bâtiment le plus proche
                     self.finalPosition = self.get_closest_building(self.playerName)
                     self.isMoving = True
-
         elif self.position in self.gameObj.buildingsDict and self.quantity > 0:
             building = self.gameObj.buildingsDict[self.position]
             if building.playerName == self.playerName:
@@ -195,7 +173,6 @@ class Person():
                 self.isMoving = True
 
     def attackPerson(self):
-
         self.distanceCible, self.victim = self.get_closest_person()
         if self.victim != None:
             self.finalPosition = self.victim.position                    
@@ -206,10 +183,7 @@ class Person():
             self.actionNames.pop(0)
             self.isMoving = False
             self.isAttaquing = False
-
-
         if self.isAttaquing:
-
             currentTime = pygame.time.get_ticks()
             elapsedTime = min(100, currentTime - self.lastTime)
             self.lastTime = currentTime
@@ -239,10 +213,7 @@ class Person():
                 self.actionNames.pop(0)
                 self.isMoving = False
                 self.isAttaquing = False
-
-
             if self.isAttaquing:
-
                 currentTime = pygame.time.get_ticks()
                 elapsedTime = min(100, currentTime - self.lastTime)
                 self.lastTime = currentTime
@@ -325,6 +296,7 @@ class Ressource():
         self.image = constants.ressources_dict[entityType]['image']
         self.position = position
         self.entityType = entityType
+        self.is_harvesting = 48
 
 class Building():
     def __init__(self, gameObj, buildingType, position, playerName):
@@ -338,9 +310,7 @@ class Building():
         self.trainingDuration = 1000
 
     def create_person(self):
-
         if 'children' in constants.builds_dict[self.entityType].keys():
-
             # Take the money and start the training
             if self.startTime == None:
                 self.personType = constants.builds_dict[self.entityType]['children']
