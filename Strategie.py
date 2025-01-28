@@ -36,6 +36,13 @@ class StratEconomique:
         if wood > 175:
             self.building.build('S')
 
+    def construire_keep(self):
+        wood = compteurs_joueurs[self.joueur]['ressources']['W']
+        gold = compteurs_joueurs[self.joueur]['ressources']['G']
+
+        if wood > 35 and gold > 125:
+            self.building.build('K')
+
     def construire_archery_range(self):
         wood = compteurs_joueurs[self.joueur]['ressources']['W']
 
@@ -88,17 +95,6 @@ class StratEconomique:
 
 
     def execute(self, joueur):
-        self.phase_1(joueur)
-
-        if i == 2:
-            self.phase_2(joueur)
-
-        """
-        if i == 3:
-            self.phase_3(joueur)
-        """
-
-    def phase_1(self, joueur):
         food = compteurs_joueurs[self.joueur]['ressources']['f']
         villageois_count = 0
         timer = threading.Timer(60.0, self.optimiser_collecte_ressources, args=[joueur])
@@ -126,29 +122,5 @@ class StratEconomique:
         while len([building for building in self.gameObj.buildingsDict.values() if building.entityType == 'S']) <= 1:
             self.construire_stable()
 
-
-        if time.time() - self.start_time >= 300:  # 5 minutes = 300 secondes
-            i = 2
-            self.start_time = time.time()
-
-    def phase_2(self, joueur):
-        timer = threading.Timer(60.0, self.optimiser_collecte_ressources, args=[joueur])
-        timer.start()
-
-
-"""
-    def phase_3(self):
-
-
-
-        food = compteurs_joueurs[self.joueur]['ressources']['F']
-
-
-
-
-        if food <= 50:
-            self.construire_farm()
-
-        self.construire_house()
-        self.optimiser_collecte_ressources()
-"""
+        while len([building for building in self.gameObj.buildingsDict.values() if building.entityType == 'K']) <= 2:
+            self.construire_keep()

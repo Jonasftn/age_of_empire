@@ -36,8 +36,6 @@ class Person():
     def update(self):
         #if self.playerName == 'joueur_2':
             #print ('update', self.playerName, 'moving', self.isMoving, '(x, y)', self.position, '(xFinal, yFinal)', self.finalPosition, 'actions', len(self.actionNames))
-
-
         # Motion
         if self.isMoving:
 
@@ -83,9 +81,9 @@ class Person():
         #print("update liste des batiments", self.gameObj.buildingsDict.keys())
 
 
-    def build(self, nearWhat = None):
+    def build(self, buildingtype, nearWhat = None):
         # We are on the position, we build
-        if self.isFirstCycle == True:
+        if self.isFirstCycle:
     
             # We research the closest building
             actualBuildings = self.get_closest_building(self.playerName)
@@ -105,25 +103,19 @@ class Person():
                         self.finalPosition = (x, y)
                         self.isFirstCycle = False
                         self.isMoving = True
-
                         break
 
         if self.isFirstCycle == False and self.finalPosition == self.position:
-
             print ("position creation building", self.position)
-            building = Building(self.gameObj, 'S', self.position, self.playerName)
+            building = Building(self.gameObj, buildingtype, self.position, self.playerName)
             self.gameObj.buildingsDict[self.position] = building
             self.actionNames.pop(0)
             self.isFirstCycle = True
             print ("pop build")
 
-
-
     def create(self, buildingType):
         for building in self.gameObj.buildingsDict.values():
             if building.entityType == buildingType:
-
-
                 if 'children' in constants.builds_dict[buildingType].keys():
                     self.gameObj.persons.append(Person(self.gameObj, constants.builds_dict[buildingType]['children'], building.position, self.playerName))
                     for differentRessource, cost in self.cost:
