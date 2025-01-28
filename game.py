@@ -881,16 +881,21 @@ class Game:
             if self.menu_active:
                 self.show_menu()
             else:
-                # self.unit.show_remaining_time()
+
                 self.unit.update_creation_times()
                 self.buildings.update_creation_times()
                 DISPLAYSURF.fill(BLACK)
                 self.tile_map.render2(DISPLAYSURF, self.cam_x, self.cam_y)
                 for joueur, ia in self.ia_joueurs.items():
                     ia.execute(joueur)
-                #self.unit.update_position()
+
+                # Iterate the persons
                 for person in self.persons:
                     person.update()
+
+                # Iterate all the buildings
+                for building in self.buildingsDict.values():
+                    building.create_person()
 
                 current_time = pygame.time.get_ticks()
 

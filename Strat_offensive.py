@@ -112,9 +112,9 @@ class StratOffensive:
                 self.bouge(joueur, type_unit, id_unite, pos_bois)        
         """
         
-        for building in self.gameObj.buildingsDict.values():
+        #for building in self.gameObj.buildingsDict.values():
 
-            building.create()
+        #    building.create()
                 
         
         for person in self.gameObj.persons:

@@ -78,7 +78,7 @@ units_dict = {
         'image': Tile("images/villageois.webp", 32, 32),
         'cout': {'G': 0, 'f': 50, 'W': 0},
         'hp': 25,
-        'temps_entrainement': 25,
+        'temps_entrainement': 2,
         'attaque': 2,
         'vitesse': 8.,
         'capacité' : 20
@@ -88,7 +88,7 @@ units_dict = {
         'image': Tile("images/epeiste.png", 32, 32),
         'cout': {'G': 20, 'f': 50, 'W': 0},
         'hp': 40,
-        'temps_entrainement': 20,
+        'temps_entrainement': 3,
         'attaque': 4,
         'vitesse': 0.9
     },
@@ -97,7 +97,7 @@ units_dict = {
         'image': Tile("images/cavalier.png", 32, 32),
         'cout': {'G': 20, 'f': 80, 'W': 0},
         'hp': 45,
-        'temps_entrainement': 30,
+        'temps_entrainement': 5,
         'attaque': 4,
         'vitesse': 1.2
     },
@@ -106,7 +106,7 @@ units_dict = {
         'image': Tile("images/archer.png", 32, 32),
         'cout': {'G': 45, 'f': 0, 'W': 25},
         'hp': 30,
-        'temps_entrainement': 35,
+        'temps_entrainement': 3,
         'attaque': 4,
         'vitesse': 1
     }
@@ -117,7 +117,7 @@ builds_dict = {
         'tile': Tile("images/Town_Center.webp", 200, 128),
         'taille': 4,
         'cout': {'G': 0, 'W': 350, 'f': 0},
-        'build_time': 5,  # Temps en secondes
+        'build_time': 15,  # Temps en secondes
         'hp': 10,
         'children' : 'v'
     },
@@ -125,21 +125,21 @@ builds_dict = {
         'tile': Tile("images/House.webp", 90, 70),
         'taille': 2,
         'cout': {'G': 0, 'W': 25, 'f': 0},
-        'build_time': 25,
+        'build_time': 15,
         'hp': 200
     },
     'C': {
         'tile': Tile("images/Camp.png", 90, 70),
         'taille': 2,
         'cout': {'G': 0, 'W': 100, 'f': 0},
-        'build_time': 25,
+        'build_time': 15,
         'hp': 200
     },
     'F': {
         'tile': Tile("images/Farm - Copie.png", 60, 60),
         'taille': 2,
         'cout': {'G': 0, 'W': 60, 'f': 0},
-        'build_time': 10,
+        'build_time': 15,
         'hp': 100,
         'quantite': 300
     },
