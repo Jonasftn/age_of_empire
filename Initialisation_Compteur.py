@@ -81,13 +81,6 @@ class Initialisation_Compteur:
             if isinstance(compteurs['unites'], dict):
                 compteurs['ressources']['U'] = sum(compteurs['unites'].values())
 
-    def recalculate_max_population(self):
-        for joueur, compteurs in compteurs_joueurs.items():
-            if isinstance(compteurs['batiments'], dict):
-                town_centers = compteurs['batiments'].get('T', 0)
-                houses = compteurs['batiments'].get('H', 0)
-                compteurs['ressources']['max_pop'] = (town_centers + houses) * 5
-
     def initialize_resources(self, unit, n):
         self.create_count(n)
 
@@ -134,7 +127,6 @@ class Initialisation_Compteur:
                     compteurs['batiments']['B'] = 2
                     compteurs['batiments']['S'] = 2
                     compteurs['batiments']['A'] = 2
-                    self.recalculate_max_population()
 
     def draw_ressources(self):
         x_barre_base = 100  # Position de départ en X pour la première colonne

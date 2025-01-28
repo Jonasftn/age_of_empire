@@ -92,7 +92,7 @@ class Person():
                 y_actual = actualBuildings[1]
 
                 # We find position for new building
-                if buildingType is 'C':
+                if buildingType == 'C':
                     diameter = 20
                 else:
                     diameter = 5
@@ -117,6 +117,8 @@ class Person():
                 newBuilding = Building(self.gameObj, buildingType, self.position, self.playerName)
                 self.gameObj.buildingsDict[self.position] = newBuilding
                 compteurs_joueurs[self.playerName]['batiments'][buildingType] += 1
+                if buildingType =='T' or buildingType == 'H':
+                    compteurs_joueurs[self.playerName]['ressources']['max_pop'] += 5
                 self.startTime = None
                 self.actionNames.pop(0)
 
