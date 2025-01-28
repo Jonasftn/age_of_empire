@@ -193,7 +193,7 @@ class Person():
             elapsedTime = min(100, currentTime - self.lastTime)
             self.lastTime = currentTime
             victimType = self.victim.entityType
-            speed = constants.units_dict[victimType]['attaque']
+            speed = constants.units_dict[self.entityType]['attaque']
             
             self.victim.healthPoint -= elapsedTime*speed/1000.
             print('victim.healthPoint', self.victim.healthPoint)
@@ -206,7 +206,55 @@ class Person():
                             self.actionNames.pop(0)
                         #self.isMoving = False
                         self.isAttaquing = False
-            
+
+    def attackBuilding(self):
+            self.distanceCible, self.victim = self.get_closest_building_opponent()
+            if self.victim != None:
+                self.finalPosition = self.victim.position                    
+                self.isMoving = True
+                if self.distanceCible < 1:
+                    self.isAttaquing = True
+            else :
+                self.actionNames.pop(0)
+                self.isMoving = False
+                self.isAttaquing = False
+
+
+            if self.isAttaquing:
+
+                currentTime = pygame.time.get_ticks()
+                elapsedTime = min(100, currentTime - self.lastTime)
+                self.lastTime = currentTime
+                victimType = self.victim.entityType
+                speed = constants.units_dict[self.entityType]['attaque']
+                keys_to_remove = []
+                self.victim.healthPoint -= elapsedTime*speed/1000.
+                print('victim.healthPoint', self.victim.healthPoint)
+                if self.victim.healthPoint <= 0.:
+                    for coordinatesBuilding, building in self.gameObj.buildingsDict.items():
+                        if building.position == self.victim.position:
+                            keys_to_remove.append(coordinatesBuilding)
+                            compteurs_joueurs[self.playerName]['batiments'][victimType] -= 1
+                            if len(self.actionNames) > 0:
+                                self.actionNames.pop(0)
+                            #self.isMoving = False
+                            self.isAttaquing = False
+                    for key in keys_to_remove:
+                        self.gameObj.buildingsDict.pop(key)
+
+    def get_closest_building_opponent(self):
+        (x, y) = self.position
+        buildingClosest = None
+        distanceSquaredMin = 30.*size*size
+        for building in self.gameObj.buildingsDict.values():
+            if building.playerName != self.playerName:
+                xBuilding, yBuilding = building.position
+                distanceSquared = (x - xBuilding)**2 + (y - yBuilding)**2
+                if distanceSquared < distanceSquaredMin:
+                    distanceSquaredMin = distanceSquared
+                    buildingClosest = building
+        return math.sqrt(distanceSquaredMin), buildingClosest
+         
     def get_closest_ressource(self, ressourceName):
         (x, y) = self.position
         distanceSquaredMin = 9999999
@@ -221,6 +269,8 @@ class Person():
             if ressource.position == positionClosest:
                 print ('ressource', ressource.entityType, ressource.position)
                 return positionClosest
+            
+
 
     def get_closest_person(self):
         (x, y) = self.position
