@@ -122,55 +122,36 @@ class Person():
 
 
     def collect(self, ressourceName):
-        current_time = time.time()
-        if not hasattr(self, 'harvest_start_time'):
-            self.harvest_start_time = None
-            self.is_harvesting = False
-        # Définition des quantités maximales par type de ressource
-        RESOURCE_LIMITS = {
-            'W': 100,  # Wood: 100 par arbre (5 voyages de 20)
-            'F': 300,  # Food: 300 par ferme (15 voyages de 20)
-            'G': 800  # Gold: 800 par tile (40 voyages de 20)
-        }
-        if not self.is_harvesting:
-            self.finalPosition = self.get_closest_ressource(ressourceName)
-            self.isMoving = True
+        # We go to the closest ressource
+        self.finalPosition = self.get_closest_ressource(ressourceName)
+        self.isMoving = True
+
+        # We are on the ressource, we pickup
         if self.position in self.gameObj.ressourcesDict:
             ressource = self.gameObj.ressourcesDict[self.position]
-            if not self.is_harvesting:
-                self.harvest_start_time = current_time
-                self.is_harvesting = True
-            if self.is_harvesting and (current_time - self.harvest_start_time) >= 3:
-                if ressource.quantity > 0:
-                    self.quantity = min(ressource.quantity, 20)
-                    ressource.quantity = max(0, ressource.quantity - 20)
-                    # Vérification si la ressource est épuisée
-                    if ressource.quantity == 0:
-                        # On vérifie si c'était la quantité initiale de cette ressource
-                        initial_quantity = RESOURCE_LIMITS.get(ressourceName, 0)
-                        if ressource.total_harvested + 20 >= initial_quantity:
-                            # La ressource est complètement épuisée, on la supprime de la map
-                            del self.gameObj.ressourcesDict[self.position]
-                            # On pourrait aussi mettre à jour la visualisation de la map ici
-                            if hasattr(self.gameObj, 'update_map_visualization'):
-                                self.gameObj.update_map_visualization(self.position)
-                        else:
-                            # On met à jour le total récolté
-                            ressource.total_harvested += 20
-                    # Réinitialisation des variables de récolte
-                    self.harvest_start_time = None
-                    self.is_harvesting = False
-                    # Direction le bâtiment le plus proche
-                    self.finalPosition = self.get_closest_building(self.playerName)
-                    self.isMoving = True
+            if ressource.quantity > 0:
+                self.quantity = min(ressource.quantity, 20)
+                ressource.quantity = max(0, ressource.quantity - 20)
+                if ressource.quantity == 0: # We remove the ressource
+                    del self.gameObj.ressourcesDict[self.position]
+
+            # We go to our closest building
+            self.finalPosition = self.get_closest_building(self.playerName)
+            self.isMoving = True
+
+        # We are in our building, we store the ressource and remove the action
         elif self.position in self.gameObj.buildingsDict and self.quantity > 0:
             building = self.gameObj.buildingsDict[self.position]
             if building.playerName == self.playerName:
                 compteurs_joueurs[self.playerName]['ressources'][ressourceName] += self.quantity
                 self.quantity = 0
-                # Recherche d'une nouvelle ressource
-                self.finalPosition = self.get_closest_ressource(ressourceName)
-                self.isMoving = True
+
+        # We search another ressource
+        else :
+            self.finalPosition = self.get_closest_ressource(ressourceName)
+            self.isMoving = True
+
+
 
     def attackPerson(self):
         self.distanceCible, self.victim = self.get_closest_person()
