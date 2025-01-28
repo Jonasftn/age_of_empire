@@ -1,0 +1,111 @@
+
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Game Snapshot</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    margin: 20px;
+                }
+                h1, h2 {
+                    color: #333;
+                }
+                .tab {
+                    display: none;
+                }
+                .tab-button {
+                    background-color: #5d85ab;
+                    color: white;
+                    padding: 10px 20px;
+                    cursor: pointer;
+                    border: none;
+                    margin-right: 10px;
+                    font-size: 16px;
+                }
+                .tab-button:hover {
+                    background-color: #587795;
+                }
+                .active {
+                    background-color: #5d85ab;
+                }
+                .collapsible {
+                    background-color: #777;
+                    color: white;
+                    cursor: pointer;
+                    padding: 10px;
+                    width: 100%;
+                    border: none;
+                    text-align: left;
+                    outline: none;
+                    font-size: 15px;
+                    margin-bottom: 5px;
+                }
+                .content {
+                    padding: 0 18px;
+                    display: none;
+                    overflow: hidden;
+                    background-color: #f1f1f1;
+                    margin-bottom: 10px;
+                }
+                table {
+                    border-collapse: collapse;
+                    width: 100%;
+                    margin-bottom: 20px;
+                }
+                table, th, td {
+                    border: 1px solid #ccc;
+                }
+                th, td {
+                    padding: 8px;
+                    text-align: left;
+                }
+                th {
+                    background-color: #f4f4f4;
+                }
+            </style>
+            <script>
+                function showTab(player) {
+                    var tabs = document.querySelectorAll('.tab');
+                    var buttons = document.querySelectorAll('.tab-button');
+                    
+                    // Masquer tous les onglets
+                    tabs.forEach(tab => tab.style.display = 'none');
+                    buttons.forEach(button => button.classList.remove('active'));
+        
+                    // Afficher l'onglet du joueur sélectionné
+                    document.getElementById(player).style.display = 'block';
+                    document.querySelector('[data-player="' + player + '"]').classList.add('active');
+                }
+        
+                document.addEventListener("DOMContentLoaded", function() {
+                    // Par défaut, on affiche le premier joueur
+                    var firstPlayer = document.querySelector('.tab-button');
+                    if (firstPlayer) {
+                        showTab(firstPlayer.getAttribute('data-player'));
+                    }
+                    
+                    const collapsibles = document.querySelectorAll(".collapsible");
+                    collapsibles.forEach(button => {
+                        button.addEventListener("click", () => {
+                            button.classList.toggle("active");
+                            const content = button.nextElementSibling;
+                            if (content.style.display === "block") {
+                                content.style.display = "none";
+                            } else {
+                                content.style.display = "block";
+                            }
+                        });
+                    });
+                });
+            </script>
+        </head>
+        <body>
+            <h1>Game Snapshot</h1>
+            <div>
+        <button class="tab-button" data-player="joueur_joueur_1" onclick="showTab('joueur_joueur_1')">Joueur joueur_1</button><button class="tab-button" data-player="joueur_joueur_2" onclick="showTab('joueur_joueur_2')">Joueur joueur_2</button><div id="joueur_joueur_1" class="tab"><h2>Ressources</h2><table><tr><th>Bois</th><th>Nourriture</th><th>Or</th><th>Population</th></tr><tr><td>6000</td><td>1150</td><td>1150</td><td>1</td></tr></table><h2>Unités</h2><table><tr><th>Type</th><th>Nombre</th></tr><tr><td>Villageois</td><td>1</td></tr><tr><td>Épéiste</td><td>0</td></tr><tr><td>Hallebardier</td><td>0</td></tr><tr><td>Archer</td><td>0</td></tr></table><h2>Bâtiments</h2><table><tr><th>Joueur</th><th>Type</th><th>ID</th><th>HP</th><th>Tuiles Occupées</th></tr><tr><td>joueur_1</td><td>T</td><td>T0</td><td>10</td><td>(58,98), (58,99), (58,100), (58,101), (59,98), (59,99), (59,100), (59,101), (60,98), (60,99), (60,100), (60,101), (61,98), (61,99), (61,100), (61,101)</td></tr><tr><td>joueur_1</td><td>F</td><td>F0</td><td>100</td><td>(58,96), (58,97), (59,96), (59,97)</td></tr></table><div id="joueur_joueur_2" class="tab"><h2>Ressources</h2><table><tr><th>Bois</th><th>Nourriture</th><th>Or</th><th>Population</th></tr><tr><td>6000</td><td>1150</td><td>1150</td><td>1</td></tr></table><h2>Unités</h2><table><tr><th>Type</th><th>Nombre</th></tr><tr><td>Villageois</td><td>1</td></tr><tr><td>Épéiste</td><td>0</td></tr><tr><td>Hallebardier</td><td>0</td></tr><tr><td>Archer</td><td>0</td></tr></table><h2>Bâtiments</h2><table><tr><th>Joueur</th><th>Type</th><th>ID</th><th>HP</th><th>Tuiles Occupées</th></tr><tr><td>joueur_2</td><td>T</td><td>T0</td><td>10</td><td>(58,18), (58,19), (58,20), (58,21), (59,18), (59,19), (59,20), (59,21), (60,18), (60,19), (60,20), (60,21), (61,18), (61,19), (61,20), (61,21)</td></tr><tr><td>joueur_2</td><td>F</td><td>F0</td><td>100</td><td>(58,16), (58,17), (59,16), (59,17)</td></tr></table>
+            </body>
+            </html>
+            
