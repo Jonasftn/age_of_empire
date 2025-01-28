@@ -1,3 +1,4 @@
+
 from math import sqrt
 import math
 import pygame
@@ -84,8 +85,7 @@ class Person():
 
 
     def build(self, nearWhat = None):
-
-        buildingTypes = ['S']*5 + ['A']*5 + ['B']*5 + ['C']*1 + ['H']*1 + ['T']*1
+        buildingTypes = ['S']*1 + ['A']*1 + ['B']*1 + ['C']*1 + ['H']*5
         buildingType = random.choice(buildingTypes)
 
         if self.startTime == None:
@@ -100,9 +100,7 @@ class Person():
                     isEnough = False
                     self.actionNames.pop(0)
                     return
-                    
-            # Take the money and start the building
-            print ('isEnough', isEnough)
+
             if isEnough == True:
                 
                 for ressourceName, cost in builds_dict[buildingType]['cout'].items():
@@ -114,7 +112,7 @@ class Person():
                 y_actual = actualBuildings[1]
                 
                 # We find position for new building
-                diameter = 20
+                diameter = 5
                 for i in range (1000):
                     caseX = random.randint(-diameter, diameter)
                     caseY = random.randint(-diameter, diameter)
@@ -129,7 +127,7 @@ class Person():
                             self.isMoving = True
                             break
 
-        if self.startTime != None and self.finalPosition == self.position:
+        if self.startTime is not None and self.finalPosition == self.position:
 
             # If building is terminated, show it
             self.buildingDuration = constants.builds_dict[buildingType]['build_time']*1000
@@ -144,34 +142,65 @@ class Person():
                 print ("pop build")
 
     def collect(self, ressourceName):
-        # We go to the closest ressource
-        self.finalPosition = self.get_closest_ressource(ressourceName)
-        self.isMoving = True
+        current_time = time.time()
 
-        # We are on the ressource, we pickup
-        if self.position in self.gameObj.ressourcesDict:
-            ressource = self.gameObj.ressourcesDict[self.position]
-            if ressource.quantity > 0:
-                self.quantity = min(ressource.quantity, 20)
-                ressource.quantity = max(0, ressource.quantity - 20)
-                if ressource.quantity == 0: # We remove the ressource
-                    del self.gameObj.ressourcesDict[self.position]
+        if not hasattr(self, 'harvest_start_time'):
+            self.harvest_start_time = None
+            self.is_harvesting = False
 
-            # We go to our closest building
-            self.finalPosition = self.get_closest_building(self.playerName)
+        # Définition des quantités maximales par type de ressource
+        RESOURCE_LIMITS = {
+            'W': 100,  # Wood: 100 par arbre (5 voyages de 20)
+            'F': 300,  # Food: 300 par ferme (15 voyages de 20)
+            'G': 800  # Gold: 800 par tile (40 voyages de 20)
+        }
+
+        if not self.is_harvesting:
+            self.finalPosition = self.get_closest_ressource(ressourceName)
             self.isMoving = True
 
-        # We are in our building, we store the ressource and remove the action
+        if self.position in self.gameObj.ressourcesDict:
+            ressource = self.gameObj.ressourcesDict[self.position]
+
+            if not self.is_harvesting:
+                self.harvest_start_time = current_time
+                self.is_harvesting = True
+
+            if self.is_harvesting and (current_time - self.harvest_start_time) >= 3:
+                if ressource.quantity > 0:
+                    self.quantity = min(ressource.quantity, 20)
+                    ressource.quantity = max(0, ressource.quantity - 20)
+
+                    # Vérification si la ressource est épuisée
+                    if ressource.quantity == 0:
+                        # On vérifie si c'était la quantité initiale de cette ressource
+                        initial_quantity = RESOURCE_LIMITS.get(ressourceName, 0)
+                        if ressource.total_harvested + 20 >= initial_quantity:
+                            # La ressource est complètement épuisée, on la supprime de la map
+                            del self.gameObj.ressourcesDict[self.position]
+                            # On pourrait aussi mettre à jour la visualisation de la map ici
+                            if hasattr(self.gameObj, 'update_map_visualization'):
+                                self.gameObj.update_map_visualization(self.position)
+                        else:
+                            # On met à jour le total récolté
+                            ressource.total_harvested += 20
+
+                    # Réinitialisation des variables de récolte
+                    self.harvest_start_time = None
+                    self.is_harvesting = False
+
+                    # Direction le bâtiment le plus proche
+                    self.finalPosition = self.get_closest_building(self.playerName)
+                    self.isMoving = True
+
         elif self.position in self.gameObj.buildingsDict and self.quantity > 0:
             building = self.gameObj.buildingsDict[self.position]
             if building.playerName == self.playerName:
                 compteurs_joueurs[self.playerName]['ressources'][ressourceName] += self.quantity
                 self.quantity = 0
-
-        # We search another ressource
-        else :
-            self.finalPosition = self.get_closest_ressource(ressourceName)
-            self.isMoving = True
+                # Recherche d'une nouvelle ressource
+                self.finalPosition = self.get_closest_ressource(ressourceName)
+                self.isMoving = True
 
     def attackPerson(self):
 

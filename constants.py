@@ -80,7 +80,7 @@ units_dict = {
         'hp': 25,
         'temps_entrainement': 2,
         'attaque': 2,
-        'vitesse': 8.,
+        'vitesse': 0.8,
         'capacité' : 20
     },
     's': {  # Épéiste
@@ -117,29 +117,29 @@ builds_dict = {
         'tile': Tile("images/Town_Center.webp", 200, 128),
         'taille': 4,
         'cout': {'G': 0, 'W': 350, 'f': 0},
-        'build_time': 15,  # Temps en secondes
-        'hp': 10,
+        'build_time': 150,  # Temps en secondes
+        'hp': 1000,
         'children' : 'v'
     },
     'H': {
         'tile': Tile("images/House.webp", 90, 70),
         'taille': 2,
         'cout': {'G': 0, 'W': 25, 'f': 0},
-        'build_time': 15,
+        'build_time': 25,
         'hp': 200
     },
     'C': {
         'tile': Tile("images/Camp.png", 90, 70),
         'taille': 2,
         'cout': {'G': 0, 'W': 100, 'f': 0},
-        'build_time': 15,
+        'build_time': 25,
         'hp': 200
     },
     'F': {
         'tile': Tile("images/Farm - Copie.png", 60, 60),
         'taille': 2,
         'cout': {'G': 0, 'W': 60, 'f': 0},
-        'build_time': 15,
+        'build_time': 10,
         'hp': 100,
         'quantite': 300
     },

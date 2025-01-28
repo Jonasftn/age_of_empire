@@ -7,10 +7,7 @@ import pygame
 import threading
 import time
 import numpy as np
-from entity import *
-
-mapToDisplay =  [[('G', None) for i in range(size)] for j in range(size)]
-
+from entity import Ressource
 
 class TileMap:
     """Classe gérant la carte des tuiles."""
@@ -56,7 +53,7 @@ class TileMap:
     def add_wood_patches(self):
         """Ajoute des paquets de bois (W) sur la carte."""
         # print("wood")
-        num_patches = random.randint(10, 20)
+        num_patches = random.randint(20, 30)
         min_patch_size = 7
         max_patch_size = 15
 
@@ -113,31 +110,25 @@ class TileMap:
                         #self.gameObj.tuiles[(new_x, new_y)] = {'ressources': "G", 'quantite': ressources_dict['G']['quantite']}
                         gold_tiles.append((new_x, new_y))
 
-    def add_unit(self, unit_letter):
-        units = []
-        x = random.randint(0, size - 1)
-        y = random.randint(0, size - 1)
-        for _ in range(size):
-            if map_data[x][y] == " ":
-                map_data[x][y] = unit_letter
-                units.append((x, y))
-        return units
-
     def add_gold_middle(self):
         """Ajoute un paquet d'or (G) au centre de la carte."""
         center_x = size // 2
         center_y = size // 2
-        max_patch_size = 5  # Taille maximale d'un paquet
-
+        patch_size=25
         # Placer un paquet d'or autour du centre
-        for dx in range(-max_patch_size // 2, max_patch_size // 2 + 1):
-            for dy in range(-max_patch_size // 2, max_patch_size // 2 + 1):
-                new_x = center_x + dx
-                new_y = center_y + dy
-
-                # Vérifier si la nouvelle position est dans la carte et vide
-                if 0 <= new_x < size and 0 <= new_y < size:
-                    self.gameObj.tuiles[(new_x, new_y)] = {'ressources': "G", 'quantite': ressources_dict['G']['quantite']}
+        gold_tiles = []
+        while len(gold_tiles) < patch_size:    
+            for dx in range(-2, 3):
+                for dy in range(-2, 3):
+                    new_x = center_x + dx
+                    new_y = center_y + dy
+                
+                    if 0 <= new_x < size and 0 <= new_y < size:
+                        if (new_x, new_y) not in self.gameObj.tuiles:
+                            ressource = Ressource(self.gameObj, 'G', (new_x, new_y))
+                            self.gameObj.ressourcesDict[new_x, new_y] = ressource
+                            #self.gameObj.tuiles[(new_x, new_y)] = {'ressources': "G", 'quantite': ressources_dict['G']['quantite']}
+                            gold_tiles.append((new_x, new_y))
 
     def apply_color_filter(self, surface, color):
         """
@@ -234,60 +225,8 @@ class TileMap:
 
                     display_surface.blit(unit_image_colored, (iso_x, iso_y))
 
-    def render(self, display_surface, cam_x, cam_y):
-        for row in range(size):
-            for col in range(size):
-                if (row, col) in self.gameObj.tuiles:
-                    tile_data = self.gameObj.tuiles[(row, col)]
-                    if 'batiments' in tile_data:
-                        # Prenez le premier type de bâtiment trouvé
-                        for joueur, batiments in tile_data['batiments'].items():
-                            for type_batiment in batiments.keys():
-                                tile_type = type_batiment
-                                break
-                    elif 'unites' in tile_data:
-                        # Prenez le premier type d'unité trouvé
-                        for joueur, unites in tile_data['unites'].items():
-                            for type_unite in unites.keys():
-                                tile_type = type_unite
-                                break
-                    elif 'ressources' in tile_data:
-                        tile_type = tile_data['ressources']
-                else:
-                    tile_type = " "  # Tuile par défaut (herbe)
-
-                if tile_type == "W":
-                    #print(row, col, tile_type)
-                    tile = ressources_dict['W']['image']
-                    offset_y = tile.height - tile_grass.height
-                elif tile_type == "G":
-                    tile = ressources_dict['G']['image']
-                    offset_y = tile.height - tile_grass.height
-
-                else:
-                    tile = tile_grass
-                    offset_y = 0
-
-                # Coordonnées cartésiennes centrées
-                centered_col = col - half_size  # Décalage en X
-                centered_row = row - half_size  # Décalage en Y
-
-                # Conversion en coordonnées isométriques
-                cart_x = centered_col * tile_grass.width_half
-                cart_y = centered_row * tile_grass.height_half
-
-                iso_x = (cart_x - cart_y) - cam_x
-                iso_y = (cart_x + cart_y) / 2 - cam_y - offset_y
-
-                display_surface.blit(tile.image, (iso_x, iso_y))
-                #print(tile_type)
-                if tile_type in ["T", "H", "C", "F", "B", "S", "A", "K"]:
-                    self.afficher_buildings(row, col, cam_x, cam_y, display_surface)
-
-
 
     def render2(self, display_surface, cam_x, cam_y):
-        
         
         for i in range(size):
             for j in range(size):
