@@ -97,6 +97,7 @@ class Game:
             #if joueur_nom != "joueur_1":
             self.ia_joueurs[joueur_nom] = StratOffensive(self, joueur_nom)
 
+        self.paused = False
 
     def calculate_camera_limits(self):
         """Calcule les limites de la caméra pour empêcher le défilement hors de la carte."""
@@ -630,192 +631,63 @@ class Game:
 
 
     def run(self):
-        """Boucle principale du jeu."""
         running = True
-        pygame.display.set_caption("Carte et mini-carte")
-
         while running:
-            dt = FPSCLOCK.tick(600) / 1000
-
             events = pygame.event.get()
             for event in events:
+                # Handle pause toggle
+                if event.type == KEYDOWN and event.key == K_p:
+                    self.paused = not self.paused
 
-                if event.type == KEYDOWN and event.key == K_a:
-                    for position in self.tuiles:
-                        if 'unites' in self.tuiles[position]:
-                            print (position, self.tuiles[position]['unites'])
+                # Always handle quit
+                if event.type == QUIT:
+                    running = False
 
-                
-                if (event.type == KEYDOWN and event.key == K_ESCAPE) or event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                if event.type == KEYDOWN and event.key == K_F1:
-                    self.Initialisation_compteur.f1_active = not self.Initialisation_compteur.f1_active
-
-                if event.type == KEYDOWN and event.key == K_F2:
-                    self.Initialisation_compteur.f2_active = not self.Initialisation_compteur.f2_active
-
-                if event.type == KEYDOWN and event.key == K_F3:
-                    self.Initialisation_compteur.f3_active = not self.Initialisation_compteur.f3_active
-
-                if event.type == KEYDOWN and event.key == K_F9:
-                    self.ouvrir_terminal()
-
-                if event.type == KEYDOWN and event.key == K_u:
-                    # self.unit.creation_unite('v', 'joueur_1')
-                    taille = builds_dict["f"]['taille']
-                    in_game = 1
-                    self.buildings.ajouter_batiment("joueur_2", "f", 60, 60, taille, in_game)
-                if event.type == KEYDOWN and event.key == K_y:
-                    self.unit.creation_unite('a', 'joueur_1')
-                    self.unit.creation_unite('v', 'joueur_1')
-                    self.unit.creation_unite('h', 'joueur_1')
-                    self.unit.creation_unite('s', 'joueur_1')
-
-                if event.type == KEYDOWN and event.key == K_g:
-                    position_a = None
-                    joueur_a = 'joueur_2'
-                    type_a = 'T'
-                    id_a = 'T0'
-                    for pos, data in self.tuiles.items():
-                        if 'unites' in data and joueur_a in data['unites'] and type_a in data['unites'][joueur_a]:
-                            print(data['unites'][joueur_a])
-                            if id_a in data['unites'][joueur_a][type_a]:
-                                position_a = pos
-                                break
-
-
-                    for pos, data in self.tuiles.items():
-                        if 'batiments' in data and joueur_a in data['batiments'] and type_a in data['batiments'][joueur_a]:
-                            #print("ok")
-                            if data['batiments'][joueur_a][type_a]['id'] == id_a:
-                                print("ok")
-                                position_a = pos  # Récupérer la position du bâtiment
-                                print(f"Bâtiment trouvé à la position : {position_a}")
-                                break
-                    x,y = position_a
-                    new_pos = (x-units_dict['v'].get('range', 1),y)
-                    print(new_pos)
-
-                    self.unit.deplacer_unite('joueur_1','a',0,new_pos )
-
-                if event.type == KEYDOWN and event.key == K_f:
-                    self.unit.attack_building('joueur_1','a',0, 'joueur_2','T','T0')
-
-                if event.type == KEYDOWN and event.key == K_h:
-
-
-                    """joueur = 'joueur_1'
-                    type_unite = 'v'
-                    id_unite = 0
-                    position_0 = next((position for position, data in self.tuiles.items() if 'unites' in data and 'joueur_1' in data['unites'] and 'v' in data['unites']['joueur_1'] and 0 in data['unites']['joueur_1']['v']), None)
-                    position = self.recolte.trouver_plus_proche_ressource(position_0, joueur, type_unite, id_unite, ressource='F')
-                    print(position)
-                    self.unit.deplacer_unite(joueur, type_unite, id_unite, position)
-                    """
-                    for joueur, ia in self.ia_joueurs.items():
-                        ia.execute(joueur)
-                    """
-                    action_a_executer.append(
-                        lambda posress=position: self.recolte.recolter_ressource_plus_proche_via_trouver(joueur, type_unite, id_unite, posress=posress))
-                    def action_apres_deplacement():
-                        if int(self.tuiles[self.unit.position]['unites'][joueur][type_unite][id_unite]['capacite']) == 20:
-                            pos_batiment = self.recolte.trouver_plus_proche_batiment(joueur, type_unite, id_unite)
-                            if pos_batiment:
-
-                                self.unit.deplacer_unite(joueur, type_unite, id_unite, pos_batiment)
-
-                    action_a_executer.append(action_apres_deplacement)
-
-                    def deposer_ressources_in_batiment():
-                            quantite = 20
-                            ressource = 'f'
-                            self.recolte.deposer_ressources(quantite, joueur, type_unite, id_unite, ressource)
-
-                    action_a_executer.append(deposer_ressources_in_batiment)"""
-
-                if event.type == KEYDOWN and event.key == K_KP_MINUS:  # Touche "-"
-                    self.unit.decrementer_hp_unite()
-
-                if event.type == KEYDOWN and event.key == K_KP_PLUS:  # Touche "-"
-                    self.buildings.decrementer_hp_batiments()
-
-                if event.type == KEYDOWN and event.key == K_F11:
-                    self.save_and_load.sauvegarder_jeu(self.tuiles, compteurs_joueurs)
-
-                if event.type == KEYDOWN and event.key == K_F12:
-                    fichier = self.save_and_load.choisir_fichier_sauvegarde()
-                    if fichier:
-                        nouvellesTuiles, nouveaux_compteurs = self.save_and_load.charger_jeu(fichier)
-                        if nouvellesTuiles and nouveaux_compteurs:
-                            self.tuiles.clear()
-                            self.tuiles.update(nouvellesTuiles)
-                            compteurs_joueurs.clear()
-                            compteurs_joueurs.update(nouveaux_compteurs)
-
-                if event.type == KEYDOWN and event.key == K_TAB:
-                    file_path = self.page_html.generate_html(self.tuiles)
-                    browser = webbrowser.get("C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe %s")
-                    browser.open(f"file:///{file_path}")
-
+                # Always handle menu when active
                 if self.menu_active:
-                    self.handle_menu_events(event)
+                    if event.type == MOUSEBUTTONDOWN:
+                        self.handle_menu_events(event)
+                # Handle minimap clicks only when not in menu
+                elif event.type == MOUSEBUTTONDOWN and event.button == 1:
+                    self.handle_mini_map_click(event.pos)
 
-                #for joueur, ia in self.ia_joueurs.items():
-                #    ia.execute(joueur)
+            # Always handle camera movement
+            keys = pygame.key.get_pressed()
+            self.handle_camera_movement(keys)
 
-                else:
-                    if event.type == MOUSEBUTTONDOWN and event.button == 1:
-                        mouse_pos = pygame.mouse.get_pos()
-                        if not self.menu_active:
-                            self.handle_mini_map_click(mouse_pos)
+            # Game state updates only when not paused and not in menu
+            if not self.paused and not self.menu_active:
+                self.unit.update_creation_times()
+                self.buildings.update_creation_times()
+                for person in self.persons:
+                    person.update()
+                for joueur, ia in self.ia_joueurs.items():
+                    ia.execute(joueur)
+                self.unit.update_attacks()
+
+            # Always render
+            DISPLAYSURF.fill(BLACK)
+            
+            # Show menu or game
             if self.menu_active:
                 self.show_menu()
             else:
-                # self.unit.show_remaining_time()
-                self.unit.update_creation_times()
-                self.buildings.update_creation_times()
-                DISPLAYSURF.fill(BLACK)
                 self.tile_map.render2(DISPLAYSURF, self.cam_x, self.cam_y)
-                for joueur, ia in self.ia_joueurs.items():
-                    ia.execute(joueur)
-                #self.unit.update_position()
-                for person in self.persons:
-                    person.update()
-
-                current_time = pygame.time.get_ticks()
-
-                for position, data in self.tuiles.items():
-                    if 'unites' in data:
-                        position_x, position_y=position
-                        self.unit.update_position()
-                        self.unit.diplay_unit(position_x, position_y, self.cam_x, self.cam_y, current_time, unit_image)
-                if self.unit.position:
-                    self.unit.diplay_unit(
-                        self.unit.position[0],
-                        self.unit.position[1],
-                        self.cam_x,
-                        self.cam_y,
-                        current_time,
-                        unit_image
-                    )
                 self.draw_mini_map(DISPLAYSURF)
                 self.draw_minimap_viewbox(DISPLAYSURF)
-                self.unit.update_attacks()
-                keys = pygame.key.get_pressed()
-                self.handle_camera_movement(keys)
-
                 self.Initialisation_compteur.draw_ressources()
 
-                self.Initialisation_compteur.update_compteur()
-                fps = int(FPSCLOCK.get_fps())
-                fps_text = pygame.font.Font(None, 24).render(f"FPS: {fps}", True, (255, 255, 255))
+                # Draw pause indicator if paused
+                if self.paused:
+                    font = pygame.font.Font(None, 74)
+                    pause_text = font.render("PAUSE", True, (255, 255, 255))
+                    text_rect = pause_text.get_rect(center=(screen_width/2, screen_height/2))
+                    DISPLAYSURF.blit(pause_text, text_rect)
 
-                DISPLAYSURF.blit(fps_text, (10, 10))
-                pygame.display.update()
-                pygame.display.flip()
+            # Draw FPS counter
+            fps = int(FPSCLOCK.get_fps())
+            fps_text = pygame.font.Font(None, 36).render(f"FPS: {fps}", True, (255, 255, 255))
+            DISPLAYSURF.blit(fps_text, (10, 10))
 
-            pygame.display.update()
+            pygame.display.flip()
             FPSCLOCK.tick(60)
-    
-    
