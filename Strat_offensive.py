@@ -1,3 +1,4 @@
+
 from Buildings import Buildings
 import numpy as np
 from Units import Units
@@ -112,16 +113,15 @@ class StratOffensive:
                 self.bouge(joueur, type_unit, id_unite, pos_bois)        
         """
         
-        for building in self.gameObj.buildingsDict.values():
+        #for building in self.gameObj.buildingsDict.values():
 
-            building.create()
+        #    building.create()
                 
         
         for person in self.gameObj.persons:
             if person.playerName == joueur:
-                #print ('HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHh')
                 proba = np.arange(0, 1.1, 0.1)
-                actionsPossibles = ["W"] * 4 + ["G"] * 4 + ["B"] * 4
+                actionsPossibles = ["W"] * 10 + ["G"] * 10 + ["B"] * 1 + ["attaquePerson"] * 1 + ["createA"] * 0 + ["createH"] * 0 + ["T"] * 0 + ["K"] * 0 + ["F"] * 0 + ["S"] * 0 + ["A"] * 0
                 #print ('execute', joueur, 'person.playerName', person.playerName, 'len(actions', len(person.actionNames), 'type', person.entityType, 'position', person.position)
 
                 if person.playerName == joueur and len(person.actionNames) == 0 and person.entityType == 'v':

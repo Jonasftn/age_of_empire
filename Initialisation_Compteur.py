@@ -83,9 +83,9 @@ class Initialisation_Compteur:
         # Parcourt chaque joueur dans le dictionnaire pour initialiser les ressources
         for joueur, compteurs in compteurs_joueurs.items():
             if unit == "Lean":
-                compteurs['ressources']['W'] = 6000
-                compteurs['ressources']['f'] = 1150
-                compteurs['ressources']['G'] = 1150
+                compteurs['ressources']['W'] = 200
+                compteurs['ressources']['f'] = 50
+                compteurs['ressources']['G'] = 50
                 compteurs['unites']['v'] = 2
                 compteurs['unites']['a'] = 0
                 if isinstance(compteurs['unites'], dict):
@@ -174,4 +174,3 @@ class Initialisation_Compteur:
                     type = ["T", "H", "C", "F", "B", "S", "A", "K"][i]
                     barre.draw_barre_units(DISPLAYSURF, x_barre, y_barre + barre_height + barre_units_height,
                                            self.compteur[joueur]['batiments'][type], i, total_images_barre_builds)
-

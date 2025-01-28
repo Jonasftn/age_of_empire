@@ -118,12 +118,12 @@ class TileMap:
         """Ajoute un paquet d'or (G) au centre de la carte."""
         center_x = size // 2
         center_y = size // 2
-        patch_size=9
+        patch_size=25
         # Placer un paquet d'or autour du centre
         gold_tiles = []
         while len(gold_tiles) < patch_size:    
-            for dx in range(-1, 2):
-                for dy in range(-1, 2):
+            for dx in range(-2, 3):
+                for dy in range(-2, 3):
                     new_x = center_x + dx
                     new_y = center_y + dy
                 
@@ -228,7 +228,6 @@ class TileMap:
                     iso_y = (cart_x + cart_y) / 2 - cam_y + offset_y
 
                     display_surface.blit(unit_image_colored, (iso_x, iso_y))
-
 
 
     def render2(self, display_surface, cam_x, cam_y):
