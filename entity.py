@@ -77,7 +77,7 @@ class Person():
                     self.build(self)
 
                 if actionName == 'attaquePerson':
-                    self.attackPerson()
+                    self.attackBuilding()
                     print ("pop attaquePerson")
         #print("update la position finale est", self.finalPosition, "la position actuelle est", self.position)
         #print("update liste des batiments", self.gameObj.buildingsDict.keys())

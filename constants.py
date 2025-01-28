@@ -33,7 +33,7 @@ FPSCLOCK.tick(60)
 
 size = 60
 half_size = size//2
-mapToDisplay =  [[('G', None) for i in range(size)] for j in range(size)]
+mapToDisplay =  [[(' ', None) for i in range(size)] for j in range(size)]
 barre_width = screen_width//2.5  # Largeur de la barre
 barre_height = screen_height//13.5 # Hauteur de la barre
 

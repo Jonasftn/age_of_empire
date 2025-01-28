@@ -405,17 +405,24 @@ class Game:
         display_surface.blit(losange_surface, (
             screen_width - self.mini_map_size_x - 10, screen_height - self.mini_map_size_y - 10))"""
 
+    def get_player_color(self, player_name):
+        player_index = list(MAP_COLORS.keys()).index(player_name) + 1
+        return curses.color_pair(player_index)
 
     def draw_mini_map(self, display_surface):
-                
-        """for i in range(size):
+
+        map_rows = size
+        map_cols = size
+        for i in range(size):
             for j in range(size):
                 mapToDisplay[i][j] = " "
         for position in self.ressourcesDict :
-                mapToDisplay[position[0]][position[1]] = (self.ressourcesDict[position].entityType, None)
+            mapToDisplay[position[0]][position[1]] = (self.ressourcesDict[position].entityType, None)
         for position in self.buildingsDict :
-                mapToDisplay[position[0]][position[1]] = (self.buildingsDict[position].entityType, self.buildingsDict[position].playerName)
-        """
+            mapToDisplay[position[0]][position[1]] = (self.buildingsDict[position].entityType, self.buildingsDict[position].playerName)
+        for person in self.persons:
+                if person.position[0] < size and person.position[1] < size:
+                    mapToDisplay[int(person.position[0])][int(person.position[1])] = ("U", person.playerName)
                 
         losange_surface = pygame.Surface((self.mini_map_size_x, self.mini_map_size_y), pygame.SRCALPHA)
         losange_surface.fill((0, 0, 0, 0))  # Remplir de transparent
@@ -427,24 +434,32 @@ class Game:
 
         for row in range(size):
             for col in range(size):
-                tile = self.tuiles.get((row, col), {})  # Récupérer les données de la tuile ou un dictionnaire vide
+                tile = self.tuiles.get((row, col), {})
                 color = (34, 139, 34)  # Vert par défaut pour les self.tuiles vides
-
+                tileType = mapToDisplay[col][row][0]
                 # Vérification des ressources
-                if "ressources" in tile:
-                    ressource = tile["ressources"]
-                    if ressource == "G":
-                        color = (255, 215, 0)  # Jaune pour l'or
-                    elif ressource == "W":
-                        color = (139, 69, 19)  # Marron pour le bois
+                if tileType == "G":  # Or
+                    color = (255, 215, 0)  # Jaune pour l'or
+                elif tileType == "W": # Bois
+                    color = (139, 69, 19)  # Marron pour le bois
 
                 # Vérification des bâtiments
-                elif "batiments" in tile:
+                elif tileType in ("T", "H", "C", "F", "B", "S", "A", "K"):
                     color = (128, 128, 128)  # Gris pour les bâtiments
 
                 # Vérification des unités
-                elif "unites" in tile:
-                    color = (255, 0, 0)  # Rouge pour les unités
+                elif tileType == 'U':
+                    playerName = mapToDisplay[col][row][1]
+                    if playerName == "joueur_1":
+                        color = (255, 0, 0) #rouge
+                    elif playerName == "joueur_2":
+                        color = (0, 255, 0) #vert
+                    elif playerName == "joueur_3":
+                        color = (0, 0, 255) #bleu
+                    elif playerName == "joueur_4":
+                        color = (0, 255, 255) #jaune
+                    elif playerName == "joueur_5":
+                        color = (255, 0, 255) #rose
                 else:
                     color = (34, 139, 34)
 
@@ -529,9 +544,6 @@ class Game:
         for idx, (player, (fg, bg)) in enumerate(MAP_COLORS.items(), start=1):
             curses.init_pair(idx, fg, bg)
 
-    def get_player_color(self, player_name):
-        player_index = list(MAP_COLORS.keys()).index(player_name) + 1
-        return curses.color_pair(player_index)
 
     def draw_map_in_terminal(self, stdscr):
         self.init_player_colors()
