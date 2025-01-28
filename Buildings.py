@@ -105,9 +105,9 @@ class Buildings:
                                  key=lambda p: (p[0]-x)**2 + (p[1]-y)**2)
             reference_point = closest_building
 
-        # Search in increasing radius around reference point
-        radius = 5  # Start with small radius
-        max_radius = 20  # Maximum search radius
+        # Smaller initial radius and max radius
+        radius = 2  # Start closer (was 5)
+        max_radius = 10  # Smaller max radius (was 20)
         
         while radius <= max_radius:
             # Try positions in current radius
@@ -122,8 +122,8 @@ class Buildings:
                         self.is_position_valid(test_x, test_y, taille)):
                         return test_x, test_y
             
-            radius += 5  # Increase search radius
-            
+            radius += 2  # Smaller increment (was 5)
+        
         return None
 
     def is_position_valid(self, x, y, taille):
