@@ -94,7 +94,7 @@ class Game:
             joueur_nom = f"joueur_{joueur}"
             #if joueur_nom != "joueur_1":
             self.ia_joueurs[joueur_nom] = Strat_eco(self, joueur_nom)
-
+        self.paused = False
 
     def calculate_camera_limits(self):
         """Calcule les limites de la caméra pour empêcher le défilement hors de la carte."""
@@ -735,7 +735,64 @@ class Game:
             terminal_thread.daemon = True
             terminal_thread.start()
 
+    def draw_minimap_viewbox(self, DISPLAYSURF):
+        # Position et taille minimap
+        minimap_x = screen_width - self.mini_map_size_x - 10
+        minimap_y = screen_height - self.mini_map_size_y - 10
+        view_width = self.mini_map_size_x // 4
+        view_height = self.mini_map_size_y // 4
 
+        #L'échelle comme dans handle_mini_map_click
+        scale_x = size * (tile_grass.width_half * 2) / self.mini_map_size_x
+        scale_y = size * tile_grass.height_half / self.mini_map_size_y
+
+        rect_x = (self.cam_x + screen_width // 2) / scale_x + self.mini_map_size_x // 2
+        rect_y = (self.cam_y + screen_height // 2) / scale_y + self.mini_map_size_y // 2
+
+        # On ajuste aux coordonnées de la minimap
+        rect_x = minimap_x + rect_x - (view_width // 2)
+        rect_y = minimap_y + rect_y - (view_height // 2)
+
+        # On garde dans les limites
+        rect_x = max(minimap_x, min(rect_x, minimap_x + self.mini_map_size_x - view_width))
+        rect_y = max(minimap_y, min(rect_y, minimap_y + self.mini_map_size_y - view_height))
+
+        # Affichage rectangle
+        view_surface = pygame.Surface((view_width, view_height), pygame.SRCALPHA)
+        pygame.draw.rect(view_surface, (255, 255, 255, 100), view_surface.get_rect())
+        DISPLAYSURF.blit(view_surface, (rect_x, rect_y))
+        pygame.draw.rect(DISPLAYSURF, (255, 255, 255), 
+                        (rect_x, rect_y, view_width, view_height), 2)
+        
+    def pause_game(self):
+        if self.paused:
+            # Store current movement states before pausing
+            for person in self.persons:
+                if hasattr(person, 'isMoving'):
+                    person.isMoving = False
+                if hasattr(person, 'isAttaquing'):
+                    person.isAttaquing = False
+                if hasattr(person, 'isHarvesting'):
+                    person.isHarvesting = False
+                    
+            # Pause any units in the tile system
+            for position, tile_data in self.tuiles.items():
+                if 'unites' in tile_data:
+                    for joueur in tile_data['unites']:
+                        for type_unite in tile_data['unites'][joueur]:
+                            for id_unite in tile_data['unites'][joueur][type_unite]:
+                                if 'Status' in tile_data['unites'][joueur][type_unite][id_unite]:
+                                    tile_data['unites'][joueur][type_unite][id_unite]['Status'] = 'paused'
+                                    
+            # Stop all ongoing unit creation and building processes
+            self.unit.update_creation_times = lambda: None
+            self.buildings.update_creation_times = lambda: None
+            
+        else:
+            # Restore normal update functions when unpausing
+            self.unit.update_creation_times = self.unit.__class__.update_creation_times.__get__(self.unit, self.unit.__class__)
+            self.buildings.update_creation_times = self.buildings.__class__.update_creation_times.__get__(self.buildings, self.buildings.__class__)
+    
     def run(self):
         """Boucle principale du jeu."""
         running = True
@@ -758,7 +815,8 @@ class Game:
                     sys.exit()
                 if event.type == KEYDOWN and event.key == K_F1:
                     self.Initialisation_compteur.f1_active = not self.Initialisation_compteur.f1_active
-
+                if event.type == KEYDOWN and event.key == K_p:
+                    self.paused = not self.paused
                 if event.type == KEYDOWN and event.key == K_F2:
                     self.Initialisation_compteur.f2_active = not self.Initialisation_compteur.f2_active
 
@@ -886,10 +944,18 @@ class Game:
                 self.tile_map.render2(DISPLAYSURF, self.cam_x, self.cam_y)
                 for joueur, ia in self.ia_joueurs.items():
                     ia.execute(joueur)
+                
+                # Draw pause indicator if paused
+                if self.paused:
+                    font = pygame.font.Font(None, 74)
+                    pause_text = font.render("PAUSE", True, (255, 255, 255))
+                    text_rect = pause_text.get_rect(center=(screen_width/2, screen_height/2))
+                    DISPLAYSURF.blit(pause_text, text_rect)
 
                 # Iterate the persons
-                for person in self.persons:
-                    person.update()
+                if not self.paused:
+                    for person in self.persons:
+                        person.update()
 
                 current_time = pygame.time.get_ticks()
 
@@ -908,9 +974,20 @@ class Game:
                         unit_image
                     )
                 self.draw_mini_map(DISPLAYSURF)
+                self.draw_minimap_viewbox(DISPLAYSURF)
                 self.unit.update_attacks()
                 keys = pygame.key.get_pressed()
                 self.handle_camera_movement(keys)
+
+                # Game state updates only when not paused and not in menu
+                if not self.paused and not self.menu_active:
+                    self.unit.update_creation_times()
+                    self.buildings.update_creation_times()
+                    for person in self.persons:
+                        person.update()
+                    for joueur, ia in self.ia_joueurs.items():
+                        ia.execute(joueur)
+                    self.unit.update_attacks()
 
                 self.Initialisation_compteur.draw_ressources()
 
