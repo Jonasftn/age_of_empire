@@ -73,7 +73,7 @@ class Person():
                     self.collect(actionName)
                     if len(self.actionNames) > 0:
                         self.actionNames.pop(0)
-                        print ("pop collect")
+                        
 
                 if actionName == 'f':
                     self.collect_food()
@@ -84,9 +84,7 @@ class Person():
 
                 if actionName == 'attaquePerson':
                     self.attackBuilding()
-                    print ("pop attaquePerson")
-        #print("update la position finale est", self.finalPosition, "la position actuelle est", self.position)
-        #print("update liste des batiments", self.gameObj.buildingsDict.keys())
+
 
 
     def build(self, nearWhat = None):
@@ -109,7 +107,6 @@ class Person():
                     return
                     
             # Take the money and start the building
-            print ('isEnough', isEnough)
             if isEnough == True:
                 
                 for ressourceName, cost in builds_dict[buildingType]['cout'].items():
@@ -148,7 +145,6 @@ class Person():
                 compteurs_joueurs[self.playerName]['batiments'][buildingType] += 1
                 self.startTime = None
                 self.actionNames.pop(0)
-                print ("pop build")
 
     def collect(self, ressourceName):
         # We go to the closest ressource
@@ -190,7 +186,6 @@ class Person():
                 listeBuildingType.remove(building)
             if building.entityType == 'F' and building.playerName == self.playerName:
                 listeBuildingType1.append(building.entityType)
-        print ("listeBuildingType1", listeBuildingType1)
         if 'F' not in listeBuildingType1:
             self.actionNames.pop(0)
             return
@@ -264,7 +259,7 @@ class Person():
             speed = constants.units_dict[self.entityType]['attaque']
             
             self.victim.healthPoint -= elapsedTime*speed/1000.
-            print('victim.healthPoint', self.victim.healthPoint)
+            #print('victim.healthPoint', self.victim.healthPoint)
             if self.victim.healthPoint <= 0.:
                 for iPerson, person in enumerate(self.gameObj.persons):
                     if person.position == self.victim.position:
@@ -350,7 +345,6 @@ class Person():
                     positionClosest = (xRessource, yRessource)
         for ressource in self.gameObj.ressourcesDict.values():
             if ressource.position == positionClosest:
-                print ('ressource', ressource.entityType, ressource.position)
                 return positionClosest
             
 
@@ -386,7 +380,6 @@ class Person():
         distanceSquaredMin = 30.*size*size
         for building in self.gameObj.buildingsDict.values():
             if building.playerName == playerName:
-                print('building', building.entityType)
                 if (building.entityType == 'T' or building.entityType == 'C'):
                     xBuilding, yBuilding = building.position
                     distanceSquared = (x - xBuilding)**2 + (y - yBuilding)**2

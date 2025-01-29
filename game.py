@@ -548,6 +548,7 @@ class Game:
 
 
     def draw_map_in_terminal(self, stdscr):
+
         self.init_player_colors()
         stdscr.clear()
         stdscr.nodelay(1)
@@ -557,6 +558,18 @@ class Game:
 
         map_rows = size
         map_cols = size
+        for i in range(size):
+            for j in range(size):
+                mapToDisplay[i][j] = " "
+        for position in self.ressourcesDict :
+            if position[0] < size and position[1] < size:
+                mapToDisplay[position[0]][position[1]] = (self.ressourcesDict[position].entityType, None)
+        for position in self.buildingsDict :
+            if position[0] < size and position[1] < size:
+                mapToDisplay[position[0]][position[1]] = (self.buildingsDict[position].entityType, self.buildingsDict[position].playerName)
+        for person in self.persons:
+                if person.position[0] < size and person.position[1] < size:
+                    mapToDisplay[int(person.position[0])][int(person.position[1])] = ("U", person.playerName)
 
         while self.terminal_active:
             stdscr.clear()
@@ -573,72 +586,67 @@ class Game:
                                       curses.color_pair(12))  # Rouge pour le joueur
                     else:
 
-                        tile = self.tuiles.get((row, col), {})
+                        tile = mapToDisplay[row][col]
                         char = " "  # Espace vide par défaut
-                        color = 0  # Pas de couleur par défaut
+                        color = curses.color_pair(1)  # Pas de couleur par défaut
 
                         # Déterminer le caractère à afficher pour cette tuile
 
-                        if "batiments" in tile:
-                            for joueur, batiments_joueur in tile["batiments"].items():
-                                # print(row, col ,batiments_joueur)
-                                for batiment_type, details in batiments_joueur.items():
-
-                                    if batiment_type == "T":
-                                        char = "T"
-                                        color = self.get_player_color(joueur)
-                                    elif batiment_type == "H":
-                                        char = "H"
-                                        color = self.get_player_color(joueur)
-                                    elif batiment_type == "C":
-                                        char = "C"
-                                        color = self.get_player_color(joueur)
-                                    elif batiment_type == "f":
-                                        char = "f"
-                                        color = self.get_player_color(joueur)
-                                    elif batiment_type == "B":
-                                        char = "B"
-                                        color = self.get_player_color(joueur)
-                                    elif batiment_type == "S":
-                                        char = "S"
-                                        color = self.get_player_color(joueur)
-                                    elif batiment_type == "A":
-                                        char = "A"
-                                        color = self.get_player_color(joueur)
-                                    elif batiment_type == "K":
-                                        char = "K"
-                                        color = self.get_player_color(joueur)
-                                    else:
-                                        char = " "
-                                    break
-                                break
+                        if tile in ("T", "H", "C", "F", "B", "S", "A", "K"):
+                            print ("j'ai trouvé un batiment")
+                            batiment_type = tile
+                            if batiment_type == "T":
+                                char = "T"
+                                #color = self.get_player_color(joueur)
+                            elif batiment_type == "H":
+                                char = "H"
+                                #color = self.get_player_color(joueur)
+                            elif batiment_type == "C":
+                                char = "C"
+                                #color = self.get_player_color(joueur)
+                            elif batiment_type == "f":
+                                char = "f"
+                                #color = self.get_player_color(joueur)
+                            elif batiment_type == "B":
+                                char = "B"
+                                #color = self.get_player_color(joueur)
+                            elif batiment_type == "S":
+                                char = "S"
+                                #color = self.get_player_color(joueur)
+                            elif batiment_type == "A":
+                                char = "A"
+                                #color = self.get_player_color(joueur)
+                            elif batiment_type == "K":
+                                char = "K"
+                                #color = self.get_player_color(joueur)
+                            else:
+                                char = " "
+                                
 
 
-                        elif "unites" in tile:
-                            for joueur, unites_joueur in tile["unites"].items():
-                                for unite_type, details in unites_joueur.items():
-                                    if unite_type == "v":
-                                        char = "v"
-                                        color = self.get_player_color(joueur)
-                                        # print(color)
-                                    elif unite_type == "a":
-                                        char = "a"
-                                        color = self.get_player_color(joueur)
-                                    elif unite_type == "h":
-                                        char = "h"
-                                        color = self.get_player_color(joueur)
-                                    elif unite_type == "s":
-                                        char = "s"
-                                        color = self.get_player_color(joueur)
-                                    else:
-                                        char = " "
+                        elif tile in ("v", "a", "h", "s"):
+                            unite_type = tile
+                            if unite_type == "v":
+                                char = "v"
+                                #color = self.get_player_color(joueur)
+                                # print(color)
+                            elif unite_type == "a":
+                                char = "a"
+                                #color = self.get_player_color(joueur)
+                            elif unite_type == "h":
+                                char = "h"
+                                #color = self.get_player_color(joueur)
+                            elif unite_type == "s":
+                                char = "s"
+                                #color = self.get_player_color(joueur)
+                            else:
+                                char = " "
 
-                                    break
-                                break
+
 
                         # Déterminer les ressources
-                        elif "ressources" in tile:
-                            ressource = tile["ressources"]
+                        elif tile in ("G", "W"):
+                            ressource = tile
                             if ressource == "G":
                                 char = "G"
                             elif ressource == "W":
