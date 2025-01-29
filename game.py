@@ -3,16 +3,16 @@ import pygame
 import sys
 import json
 from pygame.locals import *
-
 import Units
-from Strat_offensive import StratOffensive
+from Strat_economique import Strat_eco
+from Strat_offensive import Strat_offensive
 from constants import *
 from TileMap import TileMap
 from Barre_ressource import Barre_ressources
 from Units import Units
 from Buildings import Buildings
 from Page_HTML import Page_HTML
-from Save_and_load import Save_and_load
+from Save_and_load_pickle import Save_and_load
 from Initialisation_Compteur import Initialisation_Compteur
 from Recolte_ressources import Recolte_ressources
 import curses
@@ -27,9 +27,7 @@ from entity import *
 
 class Game:
     """Classe principale gérant le jeu."""
-
     def __init__(self):
-
         self.tuiles = {}
         self.persons = []
         self.buildingsDict = {}
@@ -95,8 +93,8 @@ class Game:
         for joueur in range(1, self.n + 1):  # Pour chaque joueur (par exemple, joueur_1, joueur_2)
             joueur_nom = f"joueur_{joueur}"
             #if joueur_nom != "joueur_1":
-            self.ia_joueurs[joueur_nom] = StratOffensive(self, joueur_nom)
-
+            self.ia_joueurs[joueur_nom] = Strat_eco(self, joueur_nom)
+        self.paused = False
 
     def calculate_camera_limits(self):
         """Calcule les limites de la caméra pour empêcher le défilement hors de la carte."""
@@ -788,6 +786,37 @@ class Game:
         pygame.draw.rect(DISPLAYSURF, (255, 255, 255), 
                         (rect_x, rect_y, view_width, view_height), 2)
 
+        
+    def pause_game(self):
+        if self.paused:
+            # Store current movement states before pausing
+            for person in self.persons:
+                if hasattr(person, 'isMoving'):
+                    person.isMoving = False
+                if hasattr(person, 'isAttaquing'):
+                    person.isAttaquing = False
+                if hasattr(person, 'isHarvesting'):
+                    person.isHarvesting = False
+                    
+            # Pause any units in the tile system
+            for position, tile_data in self.tuiles.items():
+                if 'unites' in tile_data:
+                    for joueur in tile_data['unites']:
+                        for type_unite in tile_data['unites'][joueur]:
+                            for id_unite in tile_data['unites'][joueur][type_unite]:
+                                if 'Status' in tile_data['unites'][joueur][type_unite][id_unite]:
+                                    tile_data['unites'][joueur][type_unite][id_unite]['Status'] = 'paused'
+                                    
+            # Stop all ongoing unit creation and building processes
+            self.unit.update_creation_times = lambda: None
+            self.buildings.update_creation_times = lambda: None
+            
+        else:
+            # Restore normal update functions when unpausing
+            self.unit.update_creation_times = self.unit.__class__.update_creation_times.__get__(self.unit, self.unit.__class__)
+            self.buildings.update_creation_times = self.buildings.__class__.update_creation_times.__get__(self.buildings, self.buildings.__class__)
+    
+
     def run(self):
         """Boucle principale du jeu."""
         running = True
@@ -810,7 +839,8 @@ class Game:
                     sys.exit()
                 if event.type == KEYDOWN and event.key == K_F1:
                     self.Initialisation_compteur.f1_active = not self.Initialisation_compteur.f1_active
-
+                if event.type == KEYDOWN and event.key == K_p:
+                    self.paused = not self.paused
                 if event.type == KEYDOWN and event.key == K_F2:
                     self.Initialisation_compteur.f2_active = not self.Initialisation_compteur.f2_active
 
@@ -900,7 +930,7 @@ class Game:
                     self.buildings.decrementer_hp_batiments()
 
                 if event.type == KEYDOWN and event.key == K_F11:
-                    self.save_and_load.sauvegarder_jeu(self.tuiles, compteurs_joueurs)
+                    self.save_and_load.sauvegarder_jeu(self)
 
                 if event.type == KEYDOWN and event.key == K_F12:
                     fichier = self.save_and_load.choisir_fichier_sauvegarde()
@@ -938,14 +968,18 @@ class Game:
                 self.tile_map.render2(DISPLAYSURF, self.cam_x, self.cam_y)
                 for joueur, ia in self.ia_joueurs.items():
                     ia.execute(joueur)
+                
+                # Draw pause indicator if paused
+                if self.paused:
+                    font = pygame.font.Font(None, 74)
+                    pause_text = font.render("PAUSE", True, (255, 255, 255))
+                    text_rect = pause_text.get_rect(center=(screen_width/2, screen_height/2))
+                    DISPLAYSURF.blit(pause_text, text_rect)
 
                 # Iterate the persons
-                for person in self.persons:
-                    person.update()
-
-                # Iterate all the buildings
-                for building in self.buildingsDict.values():
-                    building.create_person()
+                if not self.paused:
+                    for person in self.persons:
+                        person.update()
 
                 current_time = pygame.time.get_ticks()
 
@@ -968,6 +1002,16 @@ class Game:
                 self.unit.update_attacks()
                 keys = pygame.key.get_pressed()
                 self.handle_camera_movement(keys)
+
+                # Game state updates only when not paused and not in menu
+                if not self.paused and not self.menu_active:
+                    self.unit.update_creation_times()
+                    self.buildings.update_creation_times()
+                    for person in self.persons:
+                        person.update()
+                    for joueur, ia in self.ia_joueurs.items():
+                        ia.execute(joueur)
+                    self.unit.update_attacks()
 
                 self.Initialisation_compteur.draw_ressources()
 

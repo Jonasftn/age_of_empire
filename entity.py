@@ -1,21 +1,18 @@
 from math import sqrt
 import math
 import pygame
-
 from TileMap import *
 import constants
 from Coordinates import *
-
-
 import random
 import time
 from Global_image_load import *
 from numpy.random import poisson
 import constants
+import time
 
 
 class Person():
-    
     def __init__(self, gameObj, entityType, position, playerName):
         self.gameObj = gameObj
         self.healthPoint = constants.units_dict[entityType]['hp']
@@ -37,13 +34,13 @@ class Person():
         self.buildingDuration = 1000
         self.isAttaquing = False
         self.distanceCible = None
+        self.isHarvesting = False
 
     def update(self):
-        
         # Motion
         if self.isMoving:
-
             (x, y) = self.position
+
             if self.finalPosition != None:
                 (xFinal, yFinal) = self.finalPosition
             
@@ -62,53 +59,52 @@ class Person():
                     y = y + (yFinal - y)*stepDuration/durationToFinal
                     self.position = (x, y)
 
+
          # Actions
         else:
-            
             if len(self.actionNames) > 0:
                 actionName = self.actionNames[0]
                 #print ('actionName', actionName)
-
                 if actionName in ('W', 'G'):
                     self.collect(actionName)
                     if len(self.actionNames) > 0:
                         self.actionNames.pop(0)
+
+
+                if actionName in ('T', 'H', 'F', 'B', 'A', 'C', 'S'):
+                    self.build(actionName)
+
+
                         
 
                 if actionName == 'f':
                     self.collect_food()
                     if len(self.actionNames) > 0:
                         self.actionNames.pop(0)
-                if actionName == 'B':
-                    self.build(self)
+
+
 
                 if actionName == 'attaquePerson':
                     self.attackBuilding()
 
 
 
-    def build(self, nearWhat = None):
 
-        buildingTypes = ['S']*0 + ['A']*0 + ['B']*0 + ['C']*0 + ['H']* 0+ ['T']*0 + ['F']*10
-        buildingType = random.choice(buildingTypes)
+    def build(self, buildingType, nearWhat = None):
 
         if self.startTime == None:
-
             # Check the ressources
             isEnough = True
             for ressourceName, cost in builds_dict[buildingType]['cout'].items():
                 nAvailables = compteurs_joueurs[self.playerName]['ressources'][ressourceName]
-                
                 
                 if nAvailables < cost:
                     isEnough = False
                     if len(self.actionNames) > 0:
                         self.actionNames.pop(0)
                     return
-                    
-            # Take the money and start the building
+
             if isEnough == True:
-                
                 for ressourceName, cost in builds_dict[buildingType]['cout'].items():
                     compteurs_joueurs[self.playerName]['ressources'][ressourceName] -= cost
 
@@ -116,9 +112,12 @@ class Person():
                 actualBuildings = self.get_closest_building(self.playerName)
                 x_actual = actualBuildings[0]
                 y_actual = actualBuildings[1]
-                
+
                 # We find position for new building
-                diameter = 20
+                if buildingType == 'C':
+                    diameter = 15
+                else:
+                    diameter = 5
                 for i in range (1000):
                     caseX = random.randint(-diameter, diameter)
                     caseY = random.randint(-diameter, diameter)
@@ -133,48 +132,61 @@ class Person():
                             self.isMoving = True
                             break
 
-        if self.startTime != None and self.finalPosition == self.position:
-
+        if self.startTime is not None and self.finalPosition == self.position:
             # If building is terminated, show it
             self.buildingDuration = constants.builds_dict[buildingType]['build_time']*1000
-            
             if pygame.time.get_ticks() > self.startTime + self.buildingDuration:
-
                 newBuilding = Building(self.gameObj, buildingType, self.position, self.playerName)
                 self.gameObj.buildingsDict[self.position] = newBuilding
                 compteurs_joueurs[self.playerName]['batiments'][buildingType] += 1
+                if buildingType =='T' or buildingType == 'H':
+                    compteurs_joueurs[self.playerName]['ressources']['max_pop'] += 5
                 self.startTime = None
                 self.actionNames.pop(0)
 
     def collect(self, ressourceName):
-        # We go to the closest ressource
+        # Si le villageois est en train de récolter
+        if self.isHarvesting:
+            if time.time() - self.startTime >= 48:  # Vérifie si 48 secondes se sont écoulées
+                ressource = self.gameObj.ressourcesDict.get(self.position, None)
+                if ressource and ressource.quantity > 0:
+                    self.quantity = min(ressource.quantity, 20)
+                    ressource.quantity = max(0, ressource.quantity - 20)
+
+                    if ressource.quantity == 0:  # La ressource est épuisée
+                        del self.gameObj.ressourcesDict[self.position]
+                        print("Resource depleted and removed from map.")
+
+                # Le villageois se dirige vers le bâtiment après avoir récolté
+                self.finalPosition = self.get_closest_building(self.playerName)
+                self.isMoving = True
+                self.isHarvesting = False  # Fin de la récolte
+            return  # Sortie pour continuer à vérifier la boucle du jeu
+
+        # Si le villageois n'est pas en train de récolter, on cherche une ressource
         self.finalPosition = self.get_closest_ressource(ressourceName)
         self.isMoving = True
 
-        # We are on the ressource, we pickup
+        # Le villageois est arrivé sur la ressource et commence la récolte
         if self.position in self.gameObj.ressourcesDict:
             ressource = self.gameObj.ressourcesDict[self.position]
             if ressource.quantity > 0:
-                self.quantity = min(ressource.quantity, 20)
-                ressource.quantity = max(0, ressource.quantity - 20)
-                if ressource.quantity == 0: # We remove the ressource
-                    del self.gameObj.ressourcesDict[self.position]
+                print("Arrived at the resource, starting harvesting...")
+                self.isHarvesting = True  # Drapeau pour indiquer qu'il récolte
+                self.startTime = time.time()  # Enregistre le temps de début de récolte
 
-            # We go to our closest building
-            self.finalPosition = self.get_closest_building_depose(self.playerName)
-            self.isMoving = True
-
-        # We are in our building, we store the ressource and remove the action
         elif self.position in self.gameObj.buildingsDict and self.quantity > 0:
             building = self.gameObj.buildingsDict[self.position]
             if building.playerName == self.playerName:
                 compteurs_joueurs[self.playerName]['ressources'][ressourceName] += self.quantity
                 self.quantity = 0
+                print(f"Deposited {self.quantity} units of {ressourceName} in the building.")
 
-        # We search another ressource
-        else :
+        # Si aucune ressource ou bâtiment n'est trouvé, on cherche une nouvelle ressource
+        else:
             self.finalPosition = self.get_closest_ressource(ressourceName)
             self.isMoving = True
+
 
     def collect_food(self):
         listeBuildingType = []
@@ -237,6 +249,8 @@ class Person():
 
     def attackPerson(self):
 
+
+    def attackPerson(self):
         self.distanceCible, self.victim = self.get_closest_person()
         if self.victim != None:
             self.finalPosition = self.victim.position                    
@@ -248,10 +262,7 @@ class Person():
                 self.actionNames.pop(0)
             self.isMoving = False
             self.isAttaquing = False
-
-
         if self.isAttaquing:
-
             currentTime = pygame.time.get_ticks()
             elapsedTime = min(100, currentTime - self.lastTime)
             self.lastTime = currentTime
@@ -282,10 +293,7 @@ class Person():
                     self.actionNames.pop(0)
                 self.isMoving = False
                 self.isAttaquing = False
-
-
             if self.isAttaquing:
-
                 currentTime = pygame.time.get_ticks()
                 elapsedTime = min(100, currentTime - self.lastTime)
                 self.lastTime = currentTime
@@ -409,9 +417,7 @@ class Building():
         self.quantity = 300
 
     def create_person(self):
-
         if 'children' in constants.builds_dict[self.entityType].keys():
-
             # Take the money and start the training
             if self.startTime == None:
                 self.personType = constants.builds_dict[self.entityType]['children']
