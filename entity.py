@@ -44,22 +44,23 @@ class Person():
         if self.isMoving:
 
             (x, y) = self.position
-            (xFinal, yFinal) = self.finalPosition
+            if self.finalPosition != None:
+                (xFinal, yFinal) = self.finalPosition
             
-            if abs(x - xFinal) < self.epsilon and abs(y - yFinal) < self.epsilon:
-                self.position = self.finalPosition
-                self.isMoving = False
-                
-            else:
-                currentTime = pygame.time.get_ticks()
-                elapsedTime = min(100, currentTime - self.lastTime)
-                self.lastTime = currentTime
-                distance = math.sqrt((x - xFinal)**2 + (y - yFinal)**2)
-                durationToFinal = 1000.*distance/self.speed  # ms
-                stepDuration = min(elapsedTime, durationToFinal)
-                x = x + (xFinal - x)*stepDuration/durationToFinal
-                y = y + (yFinal - y)*stepDuration/durationToFinal
-                self.position = (x, y)
+                if abs(x - xFinal) < self.epsilon and abs(y - yFinal) < self.epsilon:
+                    self.position = self.finalPosition
+                    self.isMoving = False
+                    
+                else:
+                    currentTime = pygame.time.get_ticks()
+                    elapsedTime = min(100, currentTime - self.lastTime)
+                    self.lastTime = currentTime
+                    distance = math.sqrt((x - xFinal)**2 + (y - yFinal)**2)
+                    durationToFinal = 1000.*distance/self.speed  # ms
+                    stepDuration = min(elapsedTime, durationToFinal)
+                    x = x + (xFinal - x)*stepDuration/durationToFinal
+                    y = y + (yFinal - y)*stepDuration/durationToFinal
+                    self.position = (x, y)
 
          # Actions
         else:
