@@ -9,6 +9,7 @@ import time
 from Global_image_load import *
 from numpy.random import poisson
 import constants
+import time
 
 
 class Person():
@@ -33,6 +34,7 @@ class Person():
         self.buildingDuration = 1000
         self.isAttaquing = False
         self.distanceCible = None
+        self.isHarvesting = False
 
     def update(self):
         # Motion
@@ -122,37 +124,49 @@ class Person():
                 self.startTime = None
                 self.actionNames.pop(0)
 
-
     def collect(self, ressourceName):
-        # We go to the closest ressource
+        # Si le villageois est en train de récolter
+        if self.isHarvesting:
+            if time.time() - self.startTime >= 48:  # Vérifie si 48 secondes se sont écoulées
+                ressource = self.gameObj.ressourcesDict.get(self.position, None)
+                if ressource and ressource.quantity > 0:
+                    self.quantity = min(ressource.quantity, 20)
+                    ressource.quantity = max(0, ressource.quantity - 20)
+
+                    if ressource.quantity == 0:  # La ressource est épuisée
+                        del self.gameObj.ressourcesDict[self.position]
+                        print("Resource depleted and removed from map.")
+
+                # Le villageois se dirige vers le bâtiment après avoir récolté
+                self.finalPosition = self.get_closest_building(self.playerName)
+                self.isMoving = True
+                self.isHarvesting = False  # Fin de la récolte
+            return  # Sortie pour continuer à vérifier la boucle du jeu
+
+        # Si le villageois n'est pas en train de récolter, on cherche une ressource
         self.finalPosition = self.get_closest_ressource(ressourceName)
         self.isMoving = True
 
-        # We are on the ressource, we pickup
+        # Le villageois est arrivé sur la ressource et commence la récolte
         if self.position in self.gameObj.ressourcesDict:
             ressource = self.gameObj.ressourcesDict[self.position]
             if ressource.quantity > 0:
-                self.quantity = min(ressource.quantity, 20)
-                ressource.quantity = max(0, ressource.quantity - 20)
-                if ressource.quantity == 0: # We remove the ressource
-                    del self.gameObj.ressourcesDict[self.position]
+                print("Arrived at the resource, starting harvesting...")
+                self.isHarvesting = True  # Drapeau pour indiquer qu'il récolte
+                self.startTime = time.time()  # Enregistre le temps de début de récolte
 
-            # We go to our closest building
-            self.finalPosition = self.get_closest_building(self.playerName)
-            self.isMoving = True
-
-        # We are in our building, we store the ressource and remove the action
+        # Si le villageois est dans son bâtiment, il dépose les ressources
         elif self.position in self.gameObj.buildingsDict and self.quantity > 0:
             building = self.gameObj.buildingsDict[self.position]
             if building.playerName == self.playerName:
                 compteurs_joueurs[self.playerName]['ressources'][ressourceName] += self.quantity
                 self.quantity = 0
+                print(f"Deposited {self.quantity} units of {ressourceName} in the building.")
 
-        # We search another ressource
-        else :
+        # Si aucune ressource ou bâtiment n'est trouvé, on cherche une nouvelle ressource
+        else:
             self.finalPosition = self.get_closest_ressource(ressourceName)
             self.isMoving = True
-
 
 
     def attackPerson(self):
@@ -279,7 +293,6 @@ class Ressource():
         self.image = constants.ressources_dict[entityType]['image']
         self.position = position
         self.entityType = entityType
-        self.is_harvesting = 48
 
 class Building():
     def __init__(self, gameObj, buildingType, position, playerName):

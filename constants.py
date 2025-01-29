@@ -78,7 +78,7 @@ units_dict = {
         'image': Tile("images/villageois.webp", 32, 32),
         'cout': {'G': 0, 'f': 50, 'W': 0},
         'hp': 25,
-        'temps_entrainement': 2,
+        'temps_entrainement': 25,
         'attaque': 2,
         'vitesse': 0.8,
         'capacité' : 20
@@ -97,7 +97,7 @@ units_dict = {
         'image': Tile("images/cavalier.png", 32, 32),
         'cout': {'G': 20, 'f': 80, 'W': 0},
         'hp': 45,
-        'temps_entrainement': 5,
+        'temps_entrainement': 30,
         'attaque': 4,
         'vitesse': 1.2
     },
@@ -106,7 +106,7 @@ units_dict = {
         'image': Tile("images/archer.png", 32, 32),
         'cout': {'G': 45, 'f': 0, 'W': 25},
         'hp': 30,
-        'temps_entrainement': 3,
+        'temps_entrainement': 35,
         'attaque': 4,
         'vitesse': 1
     }
