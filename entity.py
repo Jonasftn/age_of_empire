@@ -40,20 +40,25 @@ class Person():
         # Motion
         if self.isMoving:
             (x, y) = self.position
-            (xFinal, yFinal) = self.finalPosition
-            if abs(x - xFinal) < self.epsilon and abs(y - yFinal) < self.epsilon:
-                self.position = self.finalPosition
-                self.isMoving = False
-            else:
-                currentTime = pygame.time.get_ticks()
-                elapsedTime = min(100, currentTime - self.lastTime)
-                self.lastTime = currentTime
-                distance = math.sqrt((x - xFinal)**2 + (y - yFinal)**2)
-                durationToFinal = 1000.*distance/self.speed  # ms
-                stepDuration = min(elapsedTime, durationToFinal)
-                x = x + (xFinal - x)*stepDuration/durationToFinal
-                y = y + (yFinal - y)*stepDuration/durationToFinal
-                self.position = (x, y)
+
+            if self.finalPosition != None:
+                (xFinal, yFinal) = self.finalPosition
+            
+                if abs(x - xFinal) < self.epsilon and abs(y - yFinal) < self.epsilon:
+                    self.position = self.finalPosition
+                    self.isMoving = False
+                    
+                else:
+                    currentTime = pygame.time.get_ticks()
+                    elapsedTime = min(100, currentTime - self.lastTime)
+                    self.lastTime = currentTime
+                    distance = math.sqrt((x - xFinal)**2 + (y - yFinal)**2)
+                    durationToFinal = 1000.*distance/self.speed  # ms
+                    stepDuration = min(elapsedTime, durationToFinal)
+                    x = x + (xFinal - x)*stepDuration/durationToFinal
+                    y = y + (yFinal - y)*stepDuration/durationToFinal
+                    self.position = (x, y)
+
 
          # Actions
         else:
@@ -62,26 +67,41 @@ class Person():
                 #print ('actionName', actionName)
                 if actionName in ('W', 'G'):
                     self.collect(actionName)
-                    self.actionNames.pop(0)
+                    if len(self.actionNames) > 0:
+                        self.actionNames.pop(0)
+
+
                 if actionName in ('T', 'H', 'F', 'B', 'A', 'C', 'S'):
                     self.build(actionName)
+
+
+                        
+
+                if actionName == 'f':
+                    self.collect_food()
+                    if len(self.actionNames) > 0:
+                        self.actionNames.pop(0)
+
+
+
                 if actionName == 'attaquePerson':
-                    self.attackPerson()
-                    print ("pop attaquePerson")
-        #print("update la position finale est", self.finalPosition, "la position actuelle est", self.position)
-        #print("update liste des batiments", self.gameObj.buildingsDict.keys())
+                    self.attackBuilding()
+
+
 
 
     def build(self, buildingType, nearWhat = None):
+
         if self.startTime == None:
             # Check the ressources
             isEnough = True
             for ressourceName, cost in builds_dict[buildingType]['cout'].items():
                 nAvailables = compteurs_joueurs[self.playerName]['ressources'][ressourceName]
-                print ('buildingType', buildingType, 'ressourceName', ressourceName, 'cost', cost, 'nAvailables', nAvailables)
+                
                 if nAvailables < cost:
                     isEnough = False
-                    self.actionNames.pop(0)
+                    if len(self.actionNames) > 0:
+                        self.actionNames.pop(0)
                     return
 
             if isEnough == True:
@@ -155,7 +175,6 @@ class Person():
                 self.isHarvesting = True  # Drapeau pour indiquer qu'il récolte
                 self.startTime = time.time()  # Enregistre le temps de début de récolte
 
-        # Si le villageois est dans son bâtiment, il dépose les ressources
         elif self.position in self.gameObj.buildingsDict and self.quantity > 0:
             building = self.gameObj.buildingsDict[self.position]
             if building.playerName == self.playerName:
@@ -169,6 +188,68 @@ class Person():
             self.isMoving = True
 
 
+    def collect_food(self):
+        listeBuildingType = []
+        for building in self.gameObj.buildingsDict.values():
+            listeBuildingType.append(building)
+        listeBuildingType1 = []
+        for building in listeBuildingType:
+            if building.entityType != 'F' or building.playerName != self.playerName:
+                listeBuildingType.remove(building)
+            if building.entityType == 'F' and building.playerName == self.playerName:
+                listeBuildingType1.append(building.entityType)
+        if 'F' not in listeBuildingType1:
+            self.actionNames.pop(0)
+            return
+        
+        distance_min = 9999999
+        for building in listeBuildingType:
+            distanceSquared = (self.position[0] - building.position[0])**2 + (self.position[1] - building.position[1])**2
+            if distanceSquared < distance_min:
+                distance_min = distanceSquared
+                buildingClosest = building
+        if buildingClosest != None:
+            self.finalPosition = buildingClosest.position
+            self.isMoving = True            
+
+        if self.isFirstCycle :    
+            if self.position == self.finalPosition:
+
+                # We are on the ressource, we pickup
+
+
+                farm = self.gameObj.buildingsDict[self.position]
+                self.quantity = min(farm.quantity, 20)
+                farm.quantity = max(0, farm.quantity - 20)
+                if farm.quantity == 0: # We remove the ressource
+                    del self.gameObj.buildingsDict[farm.position]
+                        
+
+                # We go to our closest building
+                finalPosition = self.get_closest_building_depose(self.playerName)
+                if finalPosition != None:
+                    self.finalPosition = finalPosition
+                self.isFirstCycle = False
+                self.isMoving = True
+
+
+        # We are in our building, we store the ressource and remove the action
+        elif self.position in self.gameObj.buildingsDict and self.quantity > 0:
+            building = self.gameObj.buildingsDict[self.position]
+            if building.playerName == self.playerName:
+                compteurs_joueurs[self.playerName]['ressources']['f'] += self.quantity
+                self.quantity = 0
+
+        else :
+            self.isMoving = True
+        
+                        
+
+
+
+    def attackPerson(self):
+
+
     def attackPerson(self):
         self.distanceCible, self.victim = self.get_closest_person()
         if self.victim != None:
@@ -177,7 +258,8 @@ class Person():
             if self.distanceCible < 1:
                 self.isAttaquing = True
         else :
-            self.actionNames.pop(0)
+            if len(self.actionNames) > 0:
+                self.actionNames.pop(0)
             self.isMoving = False
             self.isAttaquing = False
         if self.isAttaquing:
@@ -188,7 +270,7 @@ class Person():
             speed = constants.units_dict[self.entityType]['attaque']
             
             self.victim.healthPoint -= elapsedTime*speed/1000.
-            print('victim.healthPoint', self.victim.healthPoint)
+            #print('victim.healthPoint', self.victim.healthPoint)
             if self.victim.healthPoint <= 0.:
                 for iPerson, person in enumerate(self.gameObj.persons):
                     if person.position == self.victim.position:
@@ -207,7 +289,8 @@ class Person():
                 if self.distanceCible < 1:
                     self.isAttaquing = True
             else :
-                self.actionNames.pop(0)
+                if len(self.actionNames) > 0:
+                    self.actionNames.pop(0)
                 self.isMoving = False
                 self.isAttaquing = False
             if self.isAttaquing:
@@ -244,6 +327,20 @@ class Person():
                     buildingClosest = building
         return math.sqrt(distanceSquaredMin), buildingClosest
          
+    def get_closest_farm(self):
+        (x, y) = self.position
+        buildingClosest = None
+        distanceSquaredMin = 30.*size*size
+        for building in self.gameObj.buildingsDict.values():
+            if building.playerName == self.playerName and building.entityType == 'F':
+                xBuilding, yBuilding = building.position
+                distanceSquared = (x - xBuilding)**2 + (y - yBuilding)**2
+                if distanceSquared < distanceSquaredMin:
+                    distanceSquaredMin = distanceSquared
+                    buildingClosest = building
+        return math.sqrt(distanceSquaredMin), buildingClosest
+
+
     def get_closest_ressource(self, ressourceName):
         (x, y) = self.position
         distanceSquaredMin = 9999999
@@ -256,7 +353,6 @@ class Person():
                     positionClosest = (xRessource, yRessource)
         for ressource in self.gameObj.ressourcesDict.values():
             if ressource.position == positionClosest:
-                print ('ressource', ressource.entityType, ressource.position)
                 return positionClosest
             
 
@@ -286,6 +382,20 @@ class Person():
                     positionClosest = (xBuilding, yBuilding)
         return positionClosest
 
+    def get_closest_building_depose(self, playerName):
+        (x, y) = self.position
+        buildingClosest = None
+        distanceSquaredMin = 30.*size*size
+        for building in self.gameObj.buildingsDict.values():
+            if building.playerName == playerName:
+                if (building.entityType == 'T' or building.entityType == 'C'):
+                    xBuilding, yBuilding = building.position
+                    distanceSquared = (x - xBuilding)**2 + (y - yBuilding)**2
+                    if distanceSquared < distanceSquaredMin:
+                        distanceSquaredMin = distanceSquared
+                        buildingClosest = building.position
+        return buildingClosest
+
 class Ressource():
     def __init__(self, gameObj, entityType, position):
         self.gameObj = gameObj
@@ -304,6 +414,7 @@ class Building():
         self.playerName = playerName
         self.startTime = None
         self.trainingDuration = 1000
+        self.quantity = 300
 
     def create_person(self):
         if 'children' in constants.builds_dict[self.entityType].keys():

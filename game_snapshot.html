@@ -31,25 +31,6 @@
                 .active {
                     background-color: #5d85ab;
                 }
-                .collapsible {
-                    background-color: #777;
-                    color: white;
-                    cursor: pointer;
-                    padding: 10px;
-                    width: 100%;
-                    border: none;
-                    text-align: left;
-                    outline: none;
-                    font-size: 15px;
-                    margin-bottom: 5px;
-                }
-                .content {
-                    padding: 0 18px;
-                    display: none;
-                    overflow: hidden;
-                    background-color: #f1f1f1;
-                    margin-bottom: 10px;
-                }
                 table {
                     border-collapse: collapse;
                     width: 100%;
@@ -70,42 +51,27 @@
                 function showTab(player) {
                     var tabs = document.querySelectorAll('.tab');
                     var buttons = document.querySelectorAll('.tab-button');
-                    
+
                     // Masquer tous les onglets
                     tabs.forEach(tab => tab.style.display = 'none');
                     buttons.forEach(button => button.classList.remove('active'));
-        
+
                     // Afficher l'onglet du joueur sélectionné
                     document.getElementById(player).style.display = 'block';
                     document.querySelector('[data-player="' + player + '"]').classList.add('active');
                 }
-        
+
                 document.addEventListener("DOMContentLoaded", function() {
-                    // Par défaut, on affiche le premier joueur
                     var firstPlayer = document.querySelector('.tab-button');
                     if (firstPlayer) {
                         showTab(firstPlayer.getAttribute('data-player'));
                     }
-                    
-                    const collapsibles = document.querySelectorAll(".collapsible");
-                    collapsibles.forEach(button => {
-                        button.addEventListener("click", () => {
-                            button.classList.toggle("active");
-                            const content = button.nextElementSibling;
-                            if (content.style.display === "block") {
-                                content.style.display = "none";
-                            } else {
-                                content.style.display = "block";
-                            }
-                        });
-                    });
                 });
             </script>
         </head>
         <body>
             <h1>Game Snapshot</h1>
-            <div>
-        
+        <button class="tab-button" data-player="joueur_1" onclick="showTab('joueur_1')">Joueur joueur_1</button><button class="tab-button" data-player="joueur_2" onclick="showTab('joueur_2')">Joueur joueur_2</button><div id="joueur_1" class="tab"><h2>Unité du joueur joueur_1</h2><table><tr><th>Type d'unité</th><th>HP</th><th>Coordonnées</th></tr><tr><td>Villageois</td><td>25</td><td>(93.29401212870806, 51.018874178220116)</td></tr><tr><td>Villageois</td><td>25</td><td>(118, 29)</td></tr><tr><td>Villageois</td><td>25</td><td>(98.35696561944985, 48.58865650266405)</td></tr></table><h2>Bâtiments du joueur joueur_1</h2><table><tr><th>Type</th><th>HP</th><th>Coordonnées</th></tr><tr><td>Town Center</td><td>10</td><td>(110, 43)</td></tr><tr><td>Farm</td><td>100</td><td>(109, 29)</td></tr></table></div><div id="joueur_2" class="tab"><h2>Unité du joueur joueur_2</h2><table><tr><th>Type d'unité</th><th>HP</th><th>Coordonnées</th></tr><tr><td>Villageois</td><td>25</td><td>(102.37917144006188, 49.56900892498071)</td></tr><tr><td>Villageois</td><td>25</td><td>(91.53627888958393, 52.95741284700506)</td></tr><tr><td>Villageois</td><td>25</td><td>(85.9144960753551, 54.714219976451524)</td></tr></table><h2>Bâtiments du joueur joueur_2</h2><table><tr><th>Type</th><th>HP</th><th>Coordonnées</th></tr><tr><td>Town Center</td><td>10</td><td>(117, 45)</td></tr><tr><td>Farm</td><td>100</td><td>(120, 64)</td></tr></table></div>
             </body>
             </html>
-            
+        

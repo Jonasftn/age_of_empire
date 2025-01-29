@@ -53,7 +53,10 @@ class TileMap:
     def add_wood_patches(self):
         """Ajoute des paquets de bois (W) sur la carte."""
         # print("wood")
-        num_patches = random.randint(20, 30)
+
+        quantiteRessources = size * size * 0.0075   
+        num_patches = random.randint(quantiteRessources-20, quantiteRessources + 20)
+
         min_patch_size = 7
         max_patch_size = 15
 
@@ -111,24 +114,26 @@ class TileMap:
                         gold_tiles.append((new_x, new_y))
 
     def add_gold_middle(self):
-        """Ajoute un paquet d'or (G) au centre de la carte."""
-        center_x = size // 2
-        center_y = size // 2
-        patch_size=25
-        # Placer un paquet d'or autour du centre
-        gold_tiles = []
-        while len(gold_tiles) < patch_size:    
-            for dx in range(-2, 3):
-                for dy in range(-2, 3):
-                    new_x = center_x + dx
-                    new_y = center_y + dy
-                
-                    if 0 <= new_x < size and 0 <= new_y < size:
-                        if (new_x, new_y) not in self.gameObj.tuiles:
-                            ressource = Ressource(self.gameObj, 'G', (new_x, new_y))
-                            self.gameObj.ressourcesDict[new_x, new_y] = ressource
-                            #self.gameObj.tuiles[(new_x, new_y)] = {'ressources': "G", 'quantite': ressources_dict['G']['quantite']}
-                            gold_tiles.append((new_x, new_y))
+
+            """Ajoute un paquet d'or (G) au centre de la carte."""
+            center_x = size // 2
+            center_y = size // 2
+            patch_size=25
+            # Placer un paquet d'or autour du centre
+            gold_tiles = []
+            while len(gold_tiles) < patch_size:    
+                for dx in range(-2, 3):
+                    for dy in range(-2, 3):
+                        new_x = center_x + dx
+                        new_y = center_y + dy
+                    
+                        if 0 <= new_x < size and 0 <= new_y < size:
+                            if (new_x, new_y) not in self.gameObj.tuiles:
+                                ressource = Ressource(self.gameObj, 'G', (new_x, new_y))
+                                self.gameObj.ressourcesDict[new_x, new_y] = ressource
+                                #self.gameObj.tuiles[(new_x, new_y)] = {'ressources': "G", 'quantite': ressources_dict['G']['quantite']}
+                                gold_tiles.append((new_x, new_y))
+
 
     def apply_color_filter(self, surface, color):
         """

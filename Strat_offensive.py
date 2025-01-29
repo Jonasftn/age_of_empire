@@ -132,6 +132,7 @@ class Strat_offensive:
             for person in reste_des_villageois:
                 person.actionNames.append('B')
 
+
         if gold >= wood:
             for person in villageois_a_traiter:
                 actionsPossibles = ["W"] * 6 + ["G"] * 4
