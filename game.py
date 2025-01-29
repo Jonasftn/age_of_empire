@@ -417,9 +417,11 @@ class Game:
             for j in range(size):
                 mapToDisplay[i][j] = " "
         for position in self.ressourcesDict :
-            mapToDisplay[position[0]][position[1]] = (self.ressourcesDict[position].entityType, None)
+            if position[0] < size and position[1] < size:
+                mapToDisplay[position[0]][position[1]] = (self.ressourcesDict[position].entityType, None)
         for position in self.buildingsDict :
-            mapToDisplay[position[0]][position[1]] = (self.buildingsDict[position].entityType, self.buildingsDict[position].playerName)
+            if position[0] < size and position[1] < size:
+                mapToDisplay[position[0]][position[1]] = (self.buildingsDict[position].entityType, self.buildingsDict[position].playerName)
         for person in self.persons:
                 if person.position[0] < size and person.position[1] < size:
                     mapToDisplay[int(person.position[0])][int(person.position[1])] = ("U", person.playerName)
@@ -445,7 +447,7 @@ class Game:
 
                 # Vérification des bâtiments
                 elif tileType in ("T", "H", "C", "F", "B", "S", "A", "K"):
-                    color = (128, 128, 128)  # Gris pour les bâtiments
+                    color = (0, 0, 0)  # Gris pour les bâtiments
 
                 # Vérification des unités
                 elif tileType == 'U':

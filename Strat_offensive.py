@@ -120,9 +120,9 @@ class StratOffensive:
         for person in self.gameObj.persons:
             if person.playerName == joueur:
                 proba = np.arange(0, 1.1, 0.1)
-                actionsPossibles = ["W"] * 10 + ["G"] * 10 + ["B"] * 0 + ["attaquePerson"] * 0 + ["createA"] * 0 + ["createH"] * 0 + ["T"] * 0 + ["K"] * 0 + ["F"] * 0 + ["S"] * 0 + ["A"] * 0
+                actionsPossibles = ["W"] * 5 + ["G"] * 5 + ["B"] * 1 + ["f"] * 5 + ["createA"] * 0 + ["createH"] * 0 + ["T"] * 0 + ["K"] * 0 + ["F"] * 0 + ["S"] * 0 + ["A"] * 0
                 #print ('execute', joueur, 'person.playerName', person.playerName, 'len(actions', len(person.actionNames), 'type', person.entityType, 'position', person.position)
-
+                print ('actionsPossibles pour mon villageois', person.position,  person.actionNames)
                 if person.playerName == joueur and len(person.actionNames) == 0 and person.entityType == 'v':
                     newAction = random.choice(actionsPossibles)
                     person.actionNames.append(newAction)
