@@ -12,7 +12,7 @@ from Barre_ressource import Barre_ressources
 from Units import Units
 from Buildings import Buildings
 from Page_HTML import Page_HTML
-from Save_and_load import Save_and_load
+from Save_and_load_pickle import Save_and_load
 from Initialisation_Compteur import Initialisation_Compteur
 from Recolte_ressources import Recolte_ressources
 import curses
@@ -848,7 +848,7 @@ class Game:
                     self.buildings.decrementer_hp_batiments()
 
                 if event.type == KEYDOWN and event.key == K_F11:
-                    self.save_and_load.sauvegarder_jeu(self.tuiles, compteurs_joueurs)
+                    self.save_and_load.sauvegarder_jeu(self)
 
                 if event.type == KEYDOWN and event.key == K_F12:
                     fichier = self.save_and_load.choisir_fichier_sauvegarde()
